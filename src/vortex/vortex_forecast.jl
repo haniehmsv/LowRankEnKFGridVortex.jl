@@ -6,8 +6,9 @@ export forecast, VortexForecast
 #### FORECAST OPERATORS ####
 
 
-mutable struct VortexForecast{Nx,withfreestream} <: AbstractForecastOperator{Nx}
+mutable struct VortexForecast{Nx,withfreestream,BT} <: AbstractForecastOperator{Nx}
     vm :: VortexModel
+    pfb :: PotentialFlowBody
 end
 
 """
@@ -15,20 +16,22 @@ end
 
 Allocate the structure for forecasting of vortex dynamics
 """
-function VortexForecast(vm::VortexModel)
+function VortexForecast(vm::VortexModel,pfb::PotentialFlowBody)
     withfreestream = vm.U∞ == 0.0 ? false : true
     Nx = 3*length(vm.vortices)
-    VortexForecast{Nx,withfreestream}(vm)
+    body = pfb.points
+    VortexForecast{Nx,withfreestream,typeof(body)}(vm,pfb)
 end
 
 
 function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast)
-    @unpack vm = fdata
+    @unpack vm, pfb = fdata
+    @unpack points = pfb
     X = getvortexpositions(vm)
     Ẋ = vortexvelocities!(vm)
     X .= X .+ Ẋ*Δt
     setvortexpositions!(vm, X)
-    vLEnew, vTEnew = createsheddedvortices(plate,vm.vortices[end-1:end])
+    vLEnew, vTEnew = createsheddedvortices(points,vm.vortices[end-1:end])
     pushvortices!(vm,vLEnew,vTEnew)
 
     for (i, vortex) in enumerate(fdata.vortices)
