@@ -27,13 +27,10 @@ end
 function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{Nx}) where {Nx}
     @unpack vm, pfb = fdata
     @unpack points = pfb
-    X = getvortexpositions(vm)
-    Ẋ = vortexvelocities!(vm)
-    X .= X .+ Ẋ*Δt
-    setvortexpositions!(vm, X)
+    time_advancement!(vm,Δt)
     vLEnew, vTEnew = createsheddedvortices(points,vm.vortices[end-1:end])
     pushvortices!(vm,vLEnew,vTEnew)
-    
+
     xnew = x[1:end]
     append!(xnew,zeros(6))
     for (i, vortex) in enumerate(vm.vortices)
@@ -43,6 +40,12 @@ function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{Nx}) where {Nx}
     return xnew
 end
 
+function time_advancement!(vm::VortexModel,Δt)
+    X = getvortexpositions(vm)
+    Ẋ = vortexvelocities!(vm)
+    X .= X .+ Ẋ*Δt
+    setvortexpositions!(vm, X)
+end
 
 # vortices released at one-third of the way from the edge to the last released vortex from that edge
 function createsheddedvortices(plate::Plate,oldvortices)
