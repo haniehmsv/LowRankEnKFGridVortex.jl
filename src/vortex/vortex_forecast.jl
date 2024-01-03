@@ -46,6 +46,7 @@ function time_advancement!(vm::VortexModel,Δt)
     Ẋ = vortexvelocities!(vm)
     X .= X .+ Ẋ*Δt
     setvortexpositions!(vm, X)
+    return vm
 end
 
 # vortices released at one-third of the way from the edge to the last released vortex from that edge
