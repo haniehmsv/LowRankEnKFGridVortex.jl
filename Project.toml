@@ -1,7 +1,7 @@
 name = "LowRankEnKFGridVortex"
 uuid = "076f3ad3-be15-474f-9d1d-94375701e936"
 authors = ["Hanieh Mousavi"]
-version = "1.0.0"
+version = "0.1.0"
 
 [deps]
 GridPotentialFlow = "1f0d46c9-1630-4f7c-9a63-ed825740f08c"
