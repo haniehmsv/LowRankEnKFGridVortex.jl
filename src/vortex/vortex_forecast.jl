@@ -12,7 +12,7 @@ mutable struct VortexForecast{Nx,withfreestream,BT} <: AbstractForecastOperator{
 end
 
 """
-    VortexForecast(vm::VortexModel)
+    VortexForecast(vm::VortexModel,pfb::PotentialFlowBody)
 
 Allocate the structure for forecasting of vortex dynamics
 """
@@ -24,7 +24,7 @@ function VortexForecast(vm::VortexModel,pfb::PotentialFlowBody)
 end
 
 
-function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{Nx})
+function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{Nx}) where Nx
     @unpack vm, pfb = fdata
     @unpack points = pfb
     X = getvortexpositions(vm)
