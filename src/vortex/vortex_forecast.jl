@@ -34,10 +34,7 @@ function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{Nx,Ne}) where {N
     xnew = x[1:end]
     # New vortices released from the two edges augment the state vector by 3*Ne
     append!(xnew,zeros(6))
-    for (i, vortex) in enumerate(vm.vortices)
-        xnew[3i-2:3i] .= (vortex.x, vortex.y, vortex.Γ)
-    end
-    
+    vortices_to_states!(xnew,vm)
     return xnew
 end
 
@@ -56,4 +53,14 @@ function createsheddedvortices(plate::Plate,oldvortices)
     vTE = Vortex(2/3*plate.x[end]+1/3*oldvortices[end].x,2/3*plate.y[end]+1/3*oldvortices[end].y,0.0)
 
     return vLE, vTE
+end
+
+function vortices_to_states!(x::AbstractVector,vm::VortexModel)
+    for (i, vortex) in enumerate(vm.vortices)
+        x[3i-2:3i] .= (vortex.x, vortex.y, vortex.Γ)
+    end
+end
+
+function states_to_vortices!(vm::VortexModel,x::AbstractVector)
+    
 end
