@@ -34,7 +34,7 @@ function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{Nx,Ne}) where {N
     xnew = x[1:end]
     # New vortices released from the two edges augment the state vector by 3*Ne
     append!(xnew,zeros(3*Ne))
-    @inbounds for (i, vortex) in enumerate(vm.vortices)
+    for (i, vortex) in enumerate(vm.vortices)
         xnew[3i-2:3i] .= (vortex.x, vortex.y, vortex.Γ)
     end
     
