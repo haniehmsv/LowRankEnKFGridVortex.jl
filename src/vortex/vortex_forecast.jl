@@ -6,8 +6,8 @@ export forecast, VortexForecast
 #### FORECAST OPERATORS ####
 
 
-mutable struct VortexForecast{Nx,withfreestream,BT} <: AbstractForecastOperator{Nx}
-    vm :: VortexModel
+mutable struct VortexForecast{Nx,withfreestream,BT,Ne} <: AbstractForecastOperator{Nx}
+    vm :: VortexModel{Ne}
     pfb :: PotentialFlowBody
 end
 
@@ -16,15 +16,15 @@ end
 
 Allocate the structure for forecasting of vortex dynamics
 """
-function VortexForecast(vm::VortexModel,pfb::PotentialFlowBody)
+function VortexForecast(vm::VortexModel{Nb,Ne},pfb::PotentialFlowBody) where {Nb,Ne}
     withfreestream = vm.U∞ == 0.0 ? false : true
     Nx = 3*length(vm.vortices)
     body = pfb.points
-    VortexForecast{Nx,withfreestream,typeof(body)}(vm,pfb)
+    VortexForecast{Nx,withfreestream,typeof(body),Ne}(vm,pfb)
 end
 
 
-function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{Nx}) where {Nx}
+function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{Nx,Ne}) where {Nx,Ne}
     @unpack vm, pfb = fdata
     @unpack points = pfb
     time_advancement!(vm,Δt)
@@ -32,8 +32,9 @@ function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{Nx}) where {Nx}
     pushvortices!(vm,vLEnew,vTEnew)
 
     xnew = x[1:end]
-    append!(xnew,zeros(6))
-    for (i, vortex) in enumerate(vm.vortices)
+    # New vortices released from the two edges augment the state vector by 3*Ne
+    append!(xnew,zeros(3*Ne))
+    @inbounds for (i, vortex) in enumerate(vm.vortices)
         xnew[3i-2:3i] .= (vortex.x, vortex.y, vortex.Γ)
     end
     
