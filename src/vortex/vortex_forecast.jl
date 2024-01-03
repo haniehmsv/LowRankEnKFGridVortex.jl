@@ -7,7 +7,7 @@ export forecast, VortexForecast
 
 
 mutable struct VortexForecast{Nx,withfreestream,BT,Ne} <: AbstractForecastOperator{Nx}
-    vm :: VortexModel{Ne}
+    vm :: VortexModel
     pfb :: PotentialFlowBody
 end
 
