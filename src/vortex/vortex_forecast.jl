@@ -24,7 +24,7 @@ function VortexForecast(vm::VortexModel,pfb::PotentialFlowBody)
 end
 
 
-function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast)
+function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{Nx}) where {Nx}
     @unpack vm, pfb = fdata
     @unpack points = pfb
     X = getvortexpositions(vm)
@@ -33,13 +33,14 @@ function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast)
     setvortexpositions!(vm, X)
     vLEnew, vTEnew = createsheddedvortices(points,vm.vortices[end-1:end])
     pushvortices!(vm,vLEnew,vTEnew)
-
-    append!(x,zeros(6))
+    
+    xnew = x[1:end]
+    append!(xnew,zeros(6))
     for (i, vortex) in enumerate(vm.vortices)
-        x[3i-2:3i] .= (vortex.x, vortex.y, vortex.Γ)
+        xnew[3i-2:3i] .= (vortex.x, vortex.y, vortex.Γ)
     end
     
-    return x
+    return xnew
 end
 
 
