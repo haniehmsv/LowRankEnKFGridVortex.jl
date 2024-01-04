@@ -1,6 +1,6 @@
 export observation, VortexPressure, setup_sensors
 
-import LowRankEnKF: observations, observations!
+import LowRankEnKF: observations, observations!, EnsembleMatrix
 
 #### OBSERVATION OPERATORS ####
 
