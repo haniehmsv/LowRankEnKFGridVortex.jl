@@ -1,6 +1,6 @@
 export observation, VortexPressure, setup_sensors
 
-import LowRankEnKF: observations
+import LowRankEnKF: observations, observations!
 
 #### OBSERVATION OPERATORS ####
 
@@ -21,7 +21,14 @@ function VortexPressure(sens::AbstractVector,config::VortexForecast)
 end
 
 
-function LowRankEnKF.observations(x::AbstractVector,t,odata::VortexPressure) end
+function LowRankEnKF.observations!(Y::EnsembleMatrix{Ny,Ne},X::EnsembleMatrix{Nx,Ne},t,obs::VortexPressure) where {Nx,Ny,Ne}
+    for j in 1:Ne
+        Y(j) .= observations(X(j),t,obs)
+    end
+    return Y
+end
+
+function LowRankEnKF.observations(x::AbstractVector,t,obs::VortexPressure) end
 
 
 

@@ -35,7 +35,7 @@ end
 
 function LowRankEnKF.forecast!(X::BasicEnsembleMatrix{Nx,Ne},t,Δt,fdata::VortexForecast{Nx,Ne}) where {Nx,Ne}
     for j in 1:Ne
-      X(j) .= forecast(X(j),t,Δt,fdata)
+        X(j) .= forecast(X(j),t,Δt,fdata)
     end
     return X
 end
@@ -48,12 +48,12 @@ function LowRankEnKF.forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{Nx,N
     vLEnew, vTEnew = createsheddedvortices(points,vm.vortices[end-1:end])
     pushvortices!(vm,vLEnew,vTEnew)
 
-    xnew = x[1:end]
+    xnew = deepcopy(x[1:end])
     # New vortices released from the two edges augment the state vector by 3*Ne
     append!(xnew,zeros(6))
     vortices_to_states!(xnew,vm)
     Nv = length(vm.vortices)
-    return xnew
+    return view(xnew,:,1)
 end
 
 function time_advancement!(vm::VortexModel,Δt)
