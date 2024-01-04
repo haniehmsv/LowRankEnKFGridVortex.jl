@@ -7,8 +7,16 @@ export forecast, VortexForecast
 
 
 mutable struct VortexForecast{Nx,withfreestream,BT,Ne} <: AbstractForecastOperator{Nx}
+
+    "vortex model from GridPotentialFlow.jl"
     vm :: VortexModel
+
+    "potential flow body from GridPotentialFlow.jl"
     pfb :: PotentialFlowBody
+
+    "Number of vortices"
+    Nv :: Int64
+
 end
 
 """
@@ -18,9 +26,10 @@ Allocate the structure for forecasting of vortex dynamics
 """
 function VortexForecast(vm::VortexModel{Nb,Ne},pfb::PotentialFlowBody) where {Nb,Ne}
     withfreestream = vm.U∞ == 0.0 ? false : true
-    Nx = 3*length(vm.vortices)
+    Nv = length(vm.vortices)
+    Nx = 3*Nv
     body = pfb.points
-    VortexForecast{Nx,withfreestream,typeof(body),Ne}(vm,pfb)
+    VortexForecast{Nx,withfreestream,typeof(body),Ne}(vm,pfb,Nv)
 end
 
 
@@ -52,14 +61,4 @@ function createsheddedvortices(plate::Plate,oldvortices)
     vTE = Vortex(2/3*plate.x[end]+1/3*oldvortices[end].x,2/3*plate.y[end]+1/3*oldvortices[end].y,0.0)
 
     return vLE, vTE
-end
-
-function vortices_to_states!(x::AbstractVector,vm::VortexModel)
-    for (i, vortex) in enumerate(vm.vortices)
-        x[3i-2:3i] .= (vortex.x, vortex.y, vortex.Γ)
-    end
-end
-
-function states_to_vortices!(vm::VortexModel,x::AbstractVector)
-
 end
