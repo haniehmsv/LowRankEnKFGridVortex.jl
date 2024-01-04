@@ -33,7 +33,7 @@ function VortexForecast(vm::VortexModel{Nb,Ne},pfb::PotentialFlowBody) where {Nb
 end
 
 
-function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{Nx,Ne}) where {Nx,Ne}
+function LowRankEnKF.forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{Nx,Ne}) where {Nx,Ne}
     @unpack vm, pfb, Nv = fdata
     @unpack points = pfb
     time_advancement!(vm,Δt)
