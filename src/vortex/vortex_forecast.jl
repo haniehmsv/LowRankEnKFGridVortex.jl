@@ -1,7 +1,6 @@
+
+
 export forecast, VortexForecast
-
-import LowRankEnKF: forecast, forecast!
-
 
 #### FORECAST OPERATORS ####
 
@@ -33,15 +32,16 @@ function VortexForecast(vm::VortexModel{Nb,Ne},pfb::PotentialFlowBody) where {Nb
 end
 
 
-function LowRankEnKF.forecast!(X::BasicEnsembleMatrix{Nx,Ne},t,Δt,fdata::VortexForecast{Nx,Ne}) where {Nx,Ne}
+function forecast!(X::BasicEnsembleMatrix{Nx,Ne},t,Δt,fdata::VortexForecast{Nx,Ne}) where {Nx,Ne}
     for j in 1:Ne
-        X(j) .= forecast(X(j),t,Δt,fdata)
+        Xnew = forecast(X(j),t,Δt,fdata)
+        X(j) .= deepcopy(Xnew)
     end
     return X
 end
 
 
-function LowRankEnKF.forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{Nx,Ne}) where {Nx,Ne}
+function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{Nx,Ne}) where {Nx,Ne}
     @unpack vm, pfb = fdata
     @unpack points = pfb
     time_advancement!(vm,Δt)
