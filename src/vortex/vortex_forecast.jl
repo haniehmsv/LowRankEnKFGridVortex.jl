@@ -1,6 +1,6 @@
 export forecast, VortexForecast
 
-import LowRankEnKF
+import LowRankEnKF: forecast
 
 
 #### FORECAST OPERATORS ####
