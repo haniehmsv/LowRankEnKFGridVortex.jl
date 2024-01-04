@@ -33,7 +33,7 @@ function VortexForecast(vm::VortexModel{Nb,Ne},pfb::PotentialFlowBody) where {Nb
 end
 
 
-function forecast!(X::BasicEnsembleMatrix{Nx,Ne},t,Δt,fdata::VortexForecast{Nx,Ne}) where {Nx,Ne}
+function LowRankEnKF.forecast!(X::BasicEnsembleMatrix{Nx,Ne},t,Δt,fdata::VortexForecast{Nx,Ne}) where {Nx,Ne}
     for j in 1:Ne
       X(j) .= forecast(X(j),t,Δt,fdata)
     end
