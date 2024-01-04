@@ -34,7 +34,7 @@ end
 
 
 function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{Nx,Ne}) where {Nx,Ne}
-    @unpack vm, pfb = fdata
+    @unpack vm, pfb, Nv = fdata
     @unpack points = pfb
     time_advancement!(vm,Δt)
     vLEnew, vTEnew = createsheddedvortices(points,vm.vortices[end-1:end])
@@ -44,6 +44,7 @@ function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{Nx,Ne}) where {N
     # New vortices released from the two edges augment the state vector by 3*Ne
     append!(xnew,zeros(6))
     vortices_to_states!(xnew,vm)
+    Nv = length(vm.vortices)
     return xnew
 end
 
