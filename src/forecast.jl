@@ -34,7 +34,7 @@ end
 function forecast(X::BasicEnsembleMatrix{Ne},t,Δt,fdata::AbstractForecastOperator) where {Ne}
     Xnew = []
     for j in 1:Ne
-      new_state = forecast(X(j),t,Δt,fdata)
+      new_state = forecast(X(j),t,Δt,fdata,j)
       push!(Xnew, new_state)
     end
 

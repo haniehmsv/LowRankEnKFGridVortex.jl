@@ -8,7 +8,7 @@ export forecast, VortexForecast
 mutable struct VortexForecast{withfreestream,BT,Ne} <: AbstractForecastOperator
 
     "vortex model from GridPotentialFlow.jl"
-    vm :: VortexModel
+    vvm :: Vector{VortexModel}
 
     "potential flow body from GridPotentialFlow.jl"
     pfb :: PotentialFlowBody
@@ -23,19 +23,20 @@ end
 
 Allocate the structure for forecasting of vortex dynamics
 """
-function VortexForecast(vm::VortexModel{Nb,Ne},pfb::PotentialFlowBody) where {Nb,Ne}
-    withfreestream = vm.U∞ == 0.0 ? false : true
-    Nv = length(vm.vortices)
+function VortexForecast(vvm::Vector{VortexModel{Nb,Ne}},pfb::PotentialFlowBody) where {Nb,Ne}
+    withfreestream = vvm[1].U∞ == 0.0 ? false : true
+    Nv = length(vvm[1].vortices)
     Nx = 3*Nv
     body = pfb.points
-    VortexForecast{withfreestream,typeof(body),Ne}(vm,pfb,Nv)
+    VortexForecast{withfreestream,typeof(body),Ne}(vvm,pfb,Nv)
 end
 
 
 
-function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{Ne}) where {Ne}
-    @unpack vm, pfb = fdata
+function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{Ne},i::Int64) where {Ne}
+    @unpack vvm, pfb = fdata
     @unpack points = pfb
+    vm = vvm[i] #i-th ensemble member
     time_advancement!(vm,Δt)
     vLEnew, vTEnew = createsheddedvortices(points,vm.vortices[end-1:end])
     pushvortices!(vm,vLEnew,vTEnew)
