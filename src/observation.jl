@@ -7,7 +7,7 @@
 export observations!, AbstractObservationOperator, jacob!,
        state_filter!, normal_loglikelihood, log_uniform, measurement_length, state_length
 
-abstract type AbstractObservationOperator{Nx,Ny,withsensors} end
+abstract type AbstractObservationOperator{Ny,withsensors} end
 
 
 measurement_length(::AbstractObservationOperator{Ny}) where {Ny} = Ny
