@@ -11,7 +11,7 @@ abstract type AbstractObservationOperator{Ny,withsensors} end
 
 
 measurement_length(::AbstractObservationOperator{Ny}) where {Ny} = Ny
-#state_length(::AbstractObservationOperator{Nx,Ny}) where {Nx,Ny} = Nx
+state_length(X::EnsembleMatrix) = size(X,1)
 
 
 """

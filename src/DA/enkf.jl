@@ -166,10 +166,11 @@ Optional arguments:
 - `inflate::Bool = true`: True if additive/multiplicative inflation is desired
 - `β::Float64 = 1.0`: Multiplicative inflation parameter
 """
-function enkf(algo::AbstractSeqFilter, X::BasicEnsembleMatrix{Nx,Ne}, Σx, Σϵ, tspan::Tuple{S,S}; inflate::Bool = true, β = 1.0) where {Nx,Ne,S<:Real}
+function enkf(algo::AbstractSeqFilter, X::BasicEnsembleMatrix{Ne}, Σx, Σϵ, tspan::Tuple{S,S}; inflate::Bool = true, β = 1.0) where {Ne,S<:Real}
   @unpack fdata, odata, ytrue, Δtobs, Δtdyn = algo
 
   Ny = measurement_length(odata)
+  Nx = state_length(X)
 
   Y = similar(X,dims=(Ny,Ne))
   Ny = measurement_length(odata)
@@ -252,7 +253,7 @@ enkf_kalman_update!(algo::LREnKFParameters,args...) = _lrenkf_kalman_update!(alg
 
 ### Stochastic ENKF ####
 
-function _senkf_kalman_update!(algo,X::BasicEnsembleMatrix{Nx,Ne},Y::BasicEnsembleMatrix{Ny,Ne},Σx,Σϵ,Cx_history,Cy_history,rxhist,ryhist,t,ϵ,ystar,Cx,Cy,Gyy,Jac) where {Nx,Ny,Ne}
+function _senkf_kalman_update!(algo,X::BasicEnsembleMatrix{Ne},Y::BasicEnsembleMatrix{Ny,Ne},Σx,Σϵ,Cx_history,Cy_history,rxhist,ryhist,t,ϵ,ystar,Cx,Cy,Gyy,Jac) where {Ny,Ne}
 
   yerr = norm(ystar-mean(Y),Σϵ)
 
@@ -279,7 +280,7 @@ end
 
 ### Low-rank ENKF ####
 
-function _lrenkf_kalman_update!(algo::LREnKFParameters{isadaptive},X::BasicEnsembleMatrix{Nx,Ne},Y::BasicEnsembleMatrix{Ny,Ne},Σx,Σϵ,Cx_history,Cy_history,rxhist,ryhist,t,ϵ,ystar,Cx,Cy,Gyy,Jac) where {isadaptive,Nx,Ny,Ne}
+function _lrenkf_kalman_update!(algo::LREnKFParameters{isadaptive},X::BasicEnsembleMatrix{Ne},Y::BasicEnsembleMatrix{Ny,Ne},Σx,Σϵ,Cx_history,Cy_history,rxhist,ryhist,t,ϵ,ystar,Cx,Cy,Gyy,Jac) where {isadaptive,Ny,Ne}
 
   @unpack rxdefault, rydefault, ratio, odata = algo
 
@@ -288,7 +289,8 @@ function _lrenkf_kalman_update!(algo::LREnKFParameters{isadaptive},X::BasicEnsem
 
   gramians!(Cx,Cy,Jac,odata, Σϵ, X, Σx, t)
   #gramians_approx!(Cx,Cy, Jac, odata, Σϵ, X, Σx, t)
-
+  
+  Nx = state_length(X)
   V, Λx, _ = svd(Symmetric(Cx))  # Λx = Λ^2
   U, Λy, _ = svd(Symmetric(Cy))  # Λy = Λ^2
 
@@ -339,7 +341,7 @@ end
 
 Compute the state and observation gramians Cx and Cy.
 """
-function gramians!(Cx,Cy,H,obs::AbstractObservationOperator{Nx,Ny},Σϵ,X::EnsembleMatrix{Nx,Ne},Σx,t) where {Nx,Ny,Ne}
+function gramians!(Cx,Cy,H,obs::AbstractObservationOperator{Ny},Σϵ,X::EnsembleMatrix{Ne},Σx,t) where {Ny,Ne}
 
     fill!(Cx,0.0)
     fill!(Cy,0.0)
@@ -370,7 +372,7 @@ end
 Compute the state and observation gramians Cx and Cy using an approximation
 in which we evaluate the jacobian at the mean of the ensemble `X`.
 """
-function gramians_approx!(Cx,Cy,H,obs::AbstractObservationOperator{Nx,Ny},Σϵ,X::EnsembleMatrix{Nx,Ne},Σx,t) where {Nx,Ny,Ne}
+function gramians_approx!(Cx,Cy,H,obs::AbstractObservationOperator{Ny},Σϵ,X::EnsembleMatrix{Ne},Σx,t) where {Ny,Ne}
 
     fill!(Cx,0.0)
     fill!(Cy,0.0)
@@ -394,7 +396,7 @@ end
 
 ### Utilities ####
 
-function apply_filter!(X::BasicEnsembleMatrix{Nx,Ne},odata::AbstractObservationOperator) where {Nx,Ne}
+function apply_filter!(X::BasicEnsembleMatrix{Ne},odata::AbstractObservationOperator) where {Ne}
   @inbounds for i=1:Ne
     state_filter!(X(i), odata)
   end
