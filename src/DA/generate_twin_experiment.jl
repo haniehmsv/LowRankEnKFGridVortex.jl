@@ -31,7 +31,7 @@ Starting with initial state `x0`, this routine advances the system with the fore
 and evaluates the observation data at each time step in the range t0:Δt:tf.
 It returns the data history as a `SyntheticData` structure.
 """
-function generate_data_twin_experiment(x0, t0, tf, Δt, fdata::AbstractForecastOperator{Nx}, odata::AbstractObservationOperator{Nx,Ny}, Σx, Σϵ) where {Nx,Ny}
+function generate_data_twin_experiment(x0, t0, tf, Δt, fdata::AbstractForecastOperator, odata::AbstractObservationOperator{Ny}, Σx, Σϵ) where {Ny}
 
   @unpack sens = odata
     # 0.1 Generate initial state and inflate it
@@ -110,7 +110,7 @@ expects that the sensors are evenly spaced in the x direction and can
 be parameterized by this coordinate. If there are no physical locations for
 the sensors, then this only interpolates over time.
 """
-function create_truth_function(data::SyntheticData,odata::AbstractObservationOperator{Nx,Ny,true}) where {Nx,Ny}
+function create_truth_function(data::SyntheticData,odata::AbstractObservationOperator{Ny,true}) where {Ny}
   @unpack sens, tt, Δt, yt = data
   trange = tt[1]:Δt:tt[end]
   y_itp = CubicSplineInterpolation((LinRange(real(sens[1]), real(sens[end]), length(sens)),trange), yt, extrapolation_bc =  Line())
@@ -118,7 +118,7 @@ function create_truth_function(data::SyntheticData,odata::AbstractObservationOpe
   return ytrue
 end
 
-function create_truth_function(data::SyntheticData,odata::AbstractObservationOperator{Nx,Ny,false}) where {Nx,Ny}
+function create_truth_function(data::SyntheticData,odata::AbstractObservationOperator{Ny,false}) where {Ny}
   @unpack tt, Δt, yt = data
   trange = tt[1]:Δt:tt[end]
   y_itp = CubicSplineInterpolation((trange,), yt, extrapolation_bc =  Line())
