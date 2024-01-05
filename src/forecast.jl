@@ -32,11 +32,13 @@ function forecast!(X::BasicEnsembleMatrix{Ne},t,Δt,fdata::AbstractForecastOpera
 end
 
 function forecast(X::BasicEnsembleMatrix{Ne},t,Δt,fdata::AbstractForecastOperator) where {Ne}
-    lenX = []
-    Xnew = BasicEnsembleMatrix[]
+    Xnew = []
     for j in 1:Ne
       new_state = forecast(X(j),t,Δt,fdata)
       push!(Xnew, new_state)
     end
-    return X
-  end
+
+    # Stack the new_state vectors horizontally to create an 'Nx × Ne' matrix
+    X_combined = hcat(Xnew...)
+    return BasicEnsembleMatrix(X_combined)
+end
