@@ -1,4 +1,4 @@
-using Distributions, Statistics, LinearAlgebra, LowRankEnKF
+using Distributions, Statistics, LinearAlgebra
 
 import Base: size, length
 
