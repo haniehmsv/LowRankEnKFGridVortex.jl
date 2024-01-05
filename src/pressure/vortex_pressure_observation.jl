@@ -4,7 +4,7 @@ export observation, VortexPressure, setup_sensors
 #### OBSERVATION OPERATORS ####
 
 
-mutable struct VortexPressure{Nx,Ny,withfreestream,ST} <: AbstractObservationOperator{Nx,Ny,true}
+mutable struct VortexPressure{Ny,withfreestream,ST} <: AbstractObservationOperator{Ny,true}
     sens::ST
     config::VortexForecast
 end
@@ -16,11 +16,11 @@ function VortexPressure(sens::AbstractVector,config::VortexForecast)
     Nx = 3*Nv
     Ny = length(sens)
 
-    return VortexPressure{Nx,Ny,withfreestream,typeof(sens)}(sens,config)
+    return VortexPressure{Ny,withfreestream,typeof(sens)}(sens,config)
 end
 
 
-function observations!(Y::EnsembleMatrix{Ny,Ne},X::EnsembleMatrix{Nx,Ne},t,obs::VortexPressure) where {Nx,Ny,Ne}
+function observations!(Y::EnsembleMatrix{Ny,Ne},X::EnsembleMatrix{Ne},t,obs::VortexPressure) where {Ny,Ne}
     for j in 1:Ne
         Y(j) .= observations(X(j),t,obs)
     end

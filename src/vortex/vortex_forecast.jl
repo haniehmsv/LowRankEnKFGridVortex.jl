@@ -5,7 +5,7 @@ export forecast, VortexForecast
 #### FORECAST OPERATORS ####
 
 
-mutable struct VortexForecast{withfreestream,BT,Ne} <: AbstractForecastOperatorChangeStateDimension
+mutable struct VortexForecast{withfreestream,BT,Ne} <: AbstractForecastOperator
 
     "vortex model from GridPotentialFlow.jl"
     vm :: VortexModel
