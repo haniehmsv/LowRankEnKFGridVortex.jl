@@ -9,9 +9,13 @@ export observations!, AbstractObservationOperator, jacob!,
 
 abstract type AbstractObservationOperator{Nx,Ny,withsensors} end
 
+abstract type AbstractObservationOperatorChangeStateDimension{Ny,withsensors} end
+
 
 measurement_length(::AbstractObservationOperator{Nx,Ny}) where {Nx,Ny} = Ny
 state_length(::AbstractObservationOperator{Nx,Ny}) where {Nx,Ny} = Nx
+
+measurement_length(::AbstractObservationOperatorChangeStateDimension{Ny}) where {Ny} = Ny
 
 
 """
@@ -53,6 +57,7 @@ and the configuration data `config`.
 """
 function observations(x::AbstractVector,t,obs::AbstractObservationOperator) end
 
+function observations(x::AbstractVector,t,obs::AbstractObservationOperatorChangeStateDimension) end
 """
     observations!(Y::EnsembleMatrix,X::EnsembleMatrix,t::Float64,obs::AbstractObservationOperator)
 
@@ -60,7 +65,7 @@ Compute the observation function `h` for each of the states in `X` and place the
 The function `h` should take as inputs a Ny-dimensional vector of measurement points (`sens`), a vector of vortices,
 and the configuration data `config`.
 """
-function observations!(Y::EnsembleMatrix{Ny,Ne},X::EnsembleMatrix{Nx,Ne},t,obs::AbstractObservationOperator{Nx,Ny}) where {Nx,Ny,Ne}
+function observations!(Y::EnsembleMatrix{Ny,Ne},X::EnsembleMatrix{Ne},t,obs::Union{AbstractObservationOperator{Nx,Ny},AbstractObservationOperatorChangeStateDimension}) where {Nx,Ny,Ne}
   for j in 1:Ne
       Y(j) .= observations(X(j),t,obs)
   end

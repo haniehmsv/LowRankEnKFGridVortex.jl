@@ -8,20 +8,18 @@ export BasicEnsembleMatrix, create_ensemble, ensemble_perturb, whiten,
         additive_inflation!, multiplicative_inflation!, draw_sample, ensemble_size,
         downsample_ensemble
 
-abstract type EnsembleMatrix{Nx,Ne,T} <: AbstractMatrix{T} end
+abstract type EnsembleMatrix{Ne,T} <: AbstractMatrix{T} end
 
 """
-    BasicEnsembleMatrix{Nx,Ne}
+    BasicEnsembleMatrix{Ne}
 
-A type which holds data ensembles of size `Nx` x `Ne`, where `Nx`
-is the dimension of the data vectors and `Ne` the size of the
-ensemble.
+A type which holds data ensembles of size `Ne`, where `Ne` the size of the ensemble.
 """
-struct BasicEnsembleMatrix{Nx,Ne,T,XT} <: EnsembleMatrix{Nx,Ne,T}
+struct BasicEnsembleMatrix{Ne,T,XT} <: EnsembleMatrix{Ne,T}
     X :: XT
     burnin :: Integer
     BasicEnsembleMatrix(X::XT;burnin=1) where {XT<:AbstractMatrix} =
-        new{size(X,1),size(X,2),eltype(X),XT}(X,burnin)
+        new{size(X,2),eltype(X),XT}(X,burnin)
 end
 
 similar(X::BasicEnsembleMatrix;element_type=eltype(X),dims=size(X)) = BasicEnsembleMatrix(Array{element_type}(undef, dims...))
@@ -30,9 +28,10 @@ BasicEnsembleMatrix(X::BasicEnsembleMatrix,a...) = X
 
 (X::BasicEnsembleMatrix)(i::Int) = view(X.X,:,i)
 
-function Base.show(io::IO,m::MIME"text/plain",X::BasicEnsembleMatrix{Nx,Ne}) where {Nx,Ne}
-  println(io,"Ensemble with $Ne members of $Nx-dimensional data")
-  show(io,m,X.X)
+function Base.show(io::IO,m::MIME"text/plain",X::BasicEnsembleMatrix{Ne}) where {Ne}
+    Nx = size(X,1)
+    println(io,"Ensemble with $Ne members of $Nx-dimensional data")
+    show(io,m,X.X)
 end
 
 
@@ -43,7 +42,7 @@ length(X::EnsembleMatrix) = length(X.X)
 getindex(X::EnsembleMatrix,i) = getindex(X.X,i)
 getindex(X::EnsembleMatrix,I...) = getindex(X.X,I...)
 eltype(X::EnsembleMatrix) = eltype(X.X)
-ensemble_size(X::EnsembleMatrix{Nx,Ne}) where {Nx,Ne} = Ne
+ensemble_size(X::EnsembleMatrix{Ne}) where {Ne} = Ne
 
 
 
@@ -115,7 +114,7 @@ end
 mean(X::EnsembleMatrix) = _ensemble_mean(X.X,X.burnin)
 std(X::EnsembleMatrix) = _ensemble_std(X.X,X.burnin)
 cov(X::EnsembleMatrix) = _ensemble_cov(X.X,X.burnin)
-cov(X::EnsembleMatrix{Nx,Ne},Y::EnsembleMatrix{Ny,Ne}) where {Nx,Ny,Ne} = _ensemble_cov(X.X,Y.X,max(X.burnin,Y.burnin))
+cov(X::EnsembleMatrix{Ne},Y::EnsembleMatrix{Ny,Ne}) where {Ny,Ne} = _ensemble_cov(X.X,Y.X,max(X.burnin,Y.burnin))
 
 """
     ensemble_perturb(X::BasicEnsembleMatrix) -> BasicEnsembleMatrix
@@ -123,7 +122,7 @@ cov(X::EnsembleMatrix{Nx,Ne},Y::EnsembleMatrix{Ny,Ne}) where {Nx,Ny,Ne} = _ensem
 Return the perturbation of the ensemble (as another ensemble) about its own mean,
 i.e. X -> X' = X - mean(X)
 """
-ensemble_perturb(X::EnsembleMatrix{Nx}) where {Nx} = BasicEnsembleMatrix(_ensemble_perturb(X.X,X.burnin),burnin=X.burnin)
+ensemble_perturb(X::EnsembleMatrix) = BasicEnsembleMatrix(_ensemble_perturb(X.X,X.burnin),burnin=X.burnin)
 
 _ensemble_mean(X::AbstractMatrix,burnin) = vec(mean(X[:,burnin:end],dims=2))
 _ensemble_perturb(X::AbstractMatrix,burnin) = X .- _ensemble_mean(X,burnin)
@@ -167,7 +166,8 @@ norm(x::AbstractVector,Σx::Union{UniformScaling,AbstractMatrix}) = norm(inv(sqr
 Add to `X` (in place) random noise drawn from a Gaussian distribution with
 zero mean and variance given by `Σx`.
 """
-function additive_inflation!(X::BasicEnsembleMatrix{Nx,Ne},Σx::Union{UniformScaling,AbstractMatrix}) where {Nx,Ne}
+function additive_inflation!(X::BasicEnsembleMatrix{Ne},Σx::Union{UniformScaling,AbstractMatrix}) where {Ne}
+    Nx = size(X,1)
     X .+= create_ensemble(Ne,zeros(Float64,Nx),Σx)
     return X
 end
@@ -189,7 +189,7 @@ end
 Carry out the operation ``\\bar{x} + \\beta(x^j - \\bar{x})`` for every ensemble
 member in `X` (in place).
 """
-function multiplicative_inflation!(X::BasicEnsembleMatrix{Nx,Ne},β) where {Nx,Ne}
+function multiplicative_inflation!(X::BasicEnsembleMatrix{Ne},β) where {Ne}
     X .= mean(X) + β*ensemble_perturb(X)
     return X
 end
@@ -197,29 +197,30 @@ end
 
 
 """
-    YXEnsembleMatrix{Ny,Nx,Ne}
+    YXEnsembleMatrix{Ny,Ne}
 
 A type which holds two types of data ensembles of size `Ny x Ne` x `Nx x Ne`,
 where `Ny` and `Nx` are the dimensions of the data vectors and `Ne` the size of the
 ensemble.
 """
-struct YXEnsembleMatrix{Ny,Nx,Ne,T,XT} <: EnsembleMatrix{Nx,Ne,T}
+struct YXEnsembleMatrix{Ny,Ne,T,XT} <: EnsembleMatrix{Ne,T}
     X :: XT
     YXEnsembleMatrix(Y::YT,X::XT) where {YT<:AbstractMatrix,XT<:AbstractMatrix} =
-        new{size(Y,1),size(X,1),size(Y,2),eltype(X),XT}(vcat(Y,X))
+        new{size(Y,1),size(Y,2),eltype(X),XT}(vcat(Y,X))
 end
 
 similar(X::YXEnsembleMatrix,element_type=eltype(X),dims=size(X)) = YXEnsembleMatrix(Array{element_type}(undef, dims...))
 
-function Base.show(io::IO,m::MIME"text/plain",X::YXEnsembleMatrix{Ny,Nx,Ne}) where {Ny,Nx,Ne}
+function Base.show(io::IO,m::MIME"text/plain",X::YXEnsembleMatrix{Ny,Ne}) where {Ny,Ne}
+    Nx = size(X,1)
     println(io,"Combined Y/X ensemble with $Ne members of $Ny (y) and $Nx (x)-dimensional data")
     show(io,m,X.X)
 end
 
-Base.vcat(Y::BasicEnsembleMatrix{Ny,Ne},X::BasicEnsembleMatrix{Nx,Ne}) where {Ny,Nx,Ne} =
+Base.vcat(Y::BasicEnsembleMatrix{Ny,Ne},X::BasicEnsembleMatrix{Ne}) where {Ny,Ne} =
     YXEnsembleMatrix(Y.X,X.X)
 
-Base.hcat(X::BasicEnsembleMatrix{Nx}...) where {Nx} =
+Base.hcat(X::BasicEnsembleMatrix...) =
     BasicEnsembleMatrix(hcat(map(x -> x.X,X)...);burnin=max(map(x -> x.burnin,X)...))
 
 

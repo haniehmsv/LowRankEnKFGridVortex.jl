@@ -5,7 +5,7 @@ export forecast, VortexForecast
 #### FORECAST OPERATORS ####
 
 
-mutable struct VortexForecast{Nx,withfreestream,BT,Ne} <: AbstractForecastOperator{Nx}
+mutable struct VortexForecast{withfreestream,BT,Ne} <: AbstractForecastOperatorChangeStateDimension
 
     "vortex model from GridPotentialFlow.jl"
     vm :: VortexModel
@@ -28,11 +28,11 @@ function VortexForecast(vm::VortexModel{Nb,Ne},pfb::PotentialFlowBody) where {Nb
     Nv = length(vm.vortices)
     Nx = 3*Nv
     body = pfb.points
-    VortexForecast{Nx,withfreestream,typeof(body),Ne}(vm,pfb,Nv)
+    VortexForecast{withfreestream,typeof(body),Ne}(vm,pfb,Nv)
 end
 
 
-function forecast!(X::BasicEnsembleMatrix{Nx,Ne},t,Δt,fdata::VortexForecast{Nx,Ne}) where {Nx,Ne}
+function forecast!(X::BasicEnsembleMatrix{Ne},t,Δt,fdata::VortexForecast{Ne}) where {Ne}
     for j in 1:Ne
         Xnew = forecast(X(j),t,Δt,fdata)
         X(j) .= deepcopy(Xnew)
@@ -41,7 +41,7 @@ function forecast!(X::BasicEnsembleMatrix{Nx,Ne},t,Δt,fdata::VortexForecast{Nx,
 end
 
 
-function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{Nx,Ne}) where {Nx,Ne}
+function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{Ne}) where {Ne}
     @unpack vm, pfb = fdata
     @unpack points = pfb
     time_advancement!(vm,Δt)

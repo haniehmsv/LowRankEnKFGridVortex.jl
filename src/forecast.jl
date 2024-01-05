@@ -27,7 +27,7 @@ forecast(x,t,Δt,::IdentityForecastOperator) = x
 In-place forecast updating of ensemble matrix `X`, using the specific `forecast` function
 defined for `fdata`.
 """
-function forecast!(X::BasicEnsembleMatrix{Nx,Ne},t,Δt,fdata::Union{AbstractForecastOperator,AbstractForecastOperatorChangeStateDimension}) where {Nx,Ne}
+function forecast!(X::BasicEnsembleMatrix{Ne},t,Δt,fdata::Union{AbstractForecastOperator{Nx},AbstractForecastOperatorChangeStateDimension}) where {Nx,Ne}
   for j in 1:Ne
     X(j) .= forecast(X(j),t,Δt,fdata)
   end
