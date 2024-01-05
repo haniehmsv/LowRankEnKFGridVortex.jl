@@ -32,14 +32,6 @@ function VortexForecast(vm::VortexModel{Nb,Ne},pfb::PotentialFlowBody) where {Nb
 end
 
 
-function forecast!(X::BasicEnsembleMatrix{Ne},t,Δt,fdata::VortexForecast{Ne}) where {Ne}
-    for j in 1:Ne
-        Xnew = forecast(X(j),t,Δt,fdata)
-        X(j) .= deepcopy(Xnew)
-    end
-    return X
-end
-
 
 function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{Ne}) where {Ne}
     @unpack vm, pfb = fdata
@@ -53,7 +45,8 @@ function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{Ne}) where {Ne}
     append!(xnew,zeros(6))
     vortices_to_states!(xnew,vm)
     fdata.Nv = length(vm.vortices)
-    return view(xnew,:,1)
+    return xnew
+    #return view(xnew,:,1)
 end
 
 function time_advancement!(vm::VortexModel,Δt)

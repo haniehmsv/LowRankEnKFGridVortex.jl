@@ -12,7 +12,6 @@ abstract type AbstractForecastOperator end
 Forecast the state `x` at time `t` to its value at the next time `t+Δt`.
 The default forecast function is simply the identity.
 """
-function forecast(x,t,Δt,::AbstractForecastOperator) end
 
 struct IdentityForecastOperator{Nx} <: AbstractForecastOperator end
 
@@ -31,3 +30,13 @@ function forecast!(X::BasicEnsembleMatrix{Ne},t,Δt,fdata::AbstractForecastOpera
   end
   return X
 end
+
+function forecast(X::BasicEnsembleMatrix{Ne},t,Δt,fdata::AbstractForecastOperator) where {Ne}
+    lenX = []
+    Xnew = BasicEnsembleMatrix[]
+    for j in 1:Ne
+      new_state = forecast(X(j),t,Δt,fdata)
+      push!(Xnew, new_state)
+    end
+    return X
+  end
