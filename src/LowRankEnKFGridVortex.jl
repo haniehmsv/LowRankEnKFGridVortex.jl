@@ -12,9 +12,13 @@ using UnPack
 
 
 include("ensemble.jl")
+include("forecast.jl")
+include("observation.jl")
+
 include("vortex/initial.jl")
 include("vortex/vortex.jl")
 include("vortex/vortex_forecast.jl")
+
 include("pressure/vortex_pressure_observation.jl")
 
 include("DA/types.jl")
