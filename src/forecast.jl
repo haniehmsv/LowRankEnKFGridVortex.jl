@@ -26,7 +26,7 @@ defined for `fdata`.
 """
 function forecast!(X::BasicEnsembleMatrix{Ne},t,Δt,fdata::AbstractForecastOperator) where {Ne}
   for j in 1:Ne
-    X(j) .= forecast(X(j),t,Δt,fdata)
+    X(j) .= forecast(X(j),t,Δt,fdata,j)
   end
   return X
 end
