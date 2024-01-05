@@ -23,7 +23,7 @@ end
 
 Allocate the structure for forecasting of vortex dynamics
 """
-function VortexForecast(vvm::Vector{VortexModel{Nb,Ne}},pfb::PotentialFlowBody) where {Nb,Ne}
+function VortexForecast(vvm::Vector{VortexModel{Nb,Ne,TS,TU,TE,TF,TX}},pfb::PotentialFlowBody) where {Nb,Ne,TS,TU,TE,TF,TX}
     withfreestream = vvm[1].U∞ == 0.0 ? false : true
     Nv = length(vvm[1].vortices)
     Nx = 3*Nv
@@ -47,7 +47,6 @@ function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{Ne},i::Int64) wh
     vortices_to_states!(xnew,vm)
     fdata.Nv = length(vm.vortices)
     return xnew
-    #return view(xnew,:,1)
 end
 
 function time_advancement!(vm::VortexModel,Δt)
