@@ -1,6 +1,6 @@
 
 
-export forecast, VortexForecast
+export forecast, VortexForecast, time_advancement!, createsheddedvortices
 
 #### FORECAST OPERATORS ####
 

@@ -60,12 +60,19 @@ Compute the observation function `h` for each of the states in `X` and place the
 The function `h` should take as inputs a Ny-dimensional vector of measurement points (`sens`), a vector of vortices,
 and the configuration data `config`.
 """
-function observations!(Y::EnsembleMatrix{Ny,Ne},X::EnsembleMatrix{Ne},t,obs::AbstractObservationOperator{Ny}) where {Ny,Ne}
+function observations!(Y::EnsembleMatrix{Ny,Ne},X::EnsembleMatrix{Ne},t,Δt,obs::AbstractObservationOperator{Ny}) where {Ny,Ne}
   for j in 1:Ne
-      Y(j) .= observations(X(j),t,obs)
+      Y(j) .= observations(X(j),t,Δt,obs,j)
   end
   return Y
 end
+
+function observations!(Y::EnsembleMatrix{Ny,Ne},X::EnsembleMatrix{Ne},t,obs::AbstractObservationOperator{Ny}) where {Ny,Ne}
+    for j in 1:Ne
+        Y(j) .= observations(X(j),t,obs)
+    end
+    return Y
+  end
 
 """
     jacob!(J,x::AbstractVector,t::Float64,obs::AbstractObservationOperator)
