@@ -28,4 +28,6 @@ include("DA/state_utilities.jl")
 include("DA/classification.jl")
 include("DA/MCMC.jl")
 
+include("experiments/routines.jl")
+
 end
