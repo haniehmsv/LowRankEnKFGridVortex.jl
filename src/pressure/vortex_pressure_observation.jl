@@ -58,6 +58,11 @@ function observations(x::AbstractVector,t,Δt,obs::VortexPressure,i::Int64)
 end
 
 
+struct sens
+  x :: Vector{Float64}
+  y :: Vector{Float64}
+  Nsens :: Int64
+end
 
 """Setting up sensors only for body::Plate for now"""
 function setup_sensors(pfb::PotentialFlowBody,Nsens)
@@ -66,5 +71,5 @@ function setup_sensors(pfb::PotentialFlowBody,Nsens)
   xsens = range(points.x[1],points.x[end],length=Nsens)
   ysens = range(points.y[1],points.y[end],length=Nsens)
 
-  return vcat(xsens), vcat(ysens)
+  return sens(vcat(xsens),vcat(ysens),Nsens)
 end
