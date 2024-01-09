@@ -23,7 +23,7 @@ end
 
 
 function observations(x::AbstractVector,t,Δt,obs::VortexPressure,i::Int64)
-    @unpack sens, config = obs
+    @unpack sens, config, Δs = obs
     @unpack vvm, pfb = config
     @unpack points = pfb
 
