@@ -10,7 +10,7 @@ mutable struct VortexPressure{Ny,withfreestream,ST,DST} <: AbstractObservationOp
     Δs::DST
 end
 
-function VortexPressure(sens::AbstractVector,config::VortexForecast)
+function VortexPressure(sens,config::VortexForecast)
     @unpack vvm, pfb = config
     vm = vvm[1]
     withfreestream = vm.U∞ == 0.0 ? false : true
