@@ -1,5 +1,5 @@
 
-export observations, VortexPressure, setup_sensors, Sensor
+export observations, VortexPressure, Sensor
 
 #### OBSERVATION OPERATORS ####
 
