@@ -1,16 +1,21 @@
 
-export observations, VortexPressure, setup_sensors
+export observations, VortexPressure, setup_sensors, Sensor
 
 #### OBSERVATION OPERATORS ####
 
+struct Sensor
+  x :: Vector{Float64}
+  y :: Vector{Float64}
+  Nsens :: Int64
+end
 
-mutable struct VortexPressure{Ny,withfreestream,ST,DST} <: AbstractObservationOperator{Ny,true}
-    sens::ST
+mutable struct VortexPressure{Ny,withfreestream,DST} <: AbstractObservationOperator{Ny,true}
+    sens::Sensor
     config::VortexForecast
     Δs::DST
 end
 
-function VortexPressure(sens,config::VortexForecast)
+function VortexPressure(sens::Sensor,config::VortexForecast)
     @unpack vvm, pfb = config
     vm = vvm[1]
     withfreestream = vm.U∞ == 0.0 ? false : true
@@ -18,7 +23,7 @@ function VortexPressure(sens,config::VortexForecast)
     Nx = 3*Nv
     Ny = length(sens)
     Δs = dlengthmid(pfb.points)
-    return VortexPressure{Ny,withfreestream,typeof(sens),typeof(Δs)}(sens,config,Δs)
+    return VortexPressure{Ny,withfreestream,typeof(Δs)}(sens,config,Δs)
 end
 
 

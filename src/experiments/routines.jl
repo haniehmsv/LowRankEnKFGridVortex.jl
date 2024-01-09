@@ -1,10 +1,4 @@
-export sens, setup_sensors
-
-struct sens
-    x :: Vector{Float64}
-    y :: Vector{Float64}
-    Nsens :: Int64
-end
+export setup_sensors
   
   """Setting up sensors only for body::Plate for now"""
   function setup_sensors(pfb::PotentialFlowBody,Nsens)
@@ -13,5 +7,5 @@ end
     xsens = range(points.x[1],points.x[end],length=Nsens)
     ysens = range(points.y[1],points.y[end],length=Nsens)
   
-    return sens(vcat(xsens),vcat(ysens),Nsens)
+    return Sensor(vcat(xsens),vcat(ysens),Nsens)
   end
