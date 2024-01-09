@@ -3,6 +3,7 @@ module LowRankEnKFGridVortex
 using GridPotentialFlow
 using RigidBodyTools
 using LinearAlgebra
+using Interpolations
 using ProgressMeter
 using Statistics
 using NamedColors
