@@ -50,7 +50,7 @@ Optional arguments:
 - `Lyy::Float64=1e10`: Distance above which to truncate sensor-to-sensor interactions
 - `Lxy::Float64=1e10`: Distance above which to truncate state-to-sensor interactions
 """
-struct StochEnKFParameters{islocal,FT,OT}<:AbstractSeqFilter
+mutable struct StochEnKFParameters{islocal,FT,OT}<:AbstractSeqFilter
     "Forecast data"
     fdata::FT
 
@@ -104,7 +104,7 @@ Optional arguments:
 - `ratio::Float64=0.95`: the ratio of cumulative energy of the state and observation Gramians to retain.
 
 """
-struct LREnKFParameters{isadaptive,FT,OT}<:AbstractSeqFilter
+mutable struct LREnKFParameters{isadaptive,FT,OT}<:AbstractSeqFilter
     "Forecast data"
     fdata::FT
 
@@ -208,7 +208,7 @@ function enkf(algo::AbstractSeqFilter, X::BasicEnsembleMatrix{Ne}, Σx, Σϵ, ts
 		# Forecast step
 		@inbounds for j=1:step
 		   tj = t0+(i-1)*Δtobs+(j-1)*Δtdyn
-       forecast!(X,tj,Δtdyn,fdata)
+       X = forecast(X,tj,Δtdyn,fdata)
 		end
     push!(Xf, deepcopy(X))
 
@@ -228,7 +228,8 @@ function enkf(algo::AbstractSeqFilter, X::BasicEnsembleMatrix{Ne}, Σx, Σϵ, ts
 
 
 	   # Evaluate the observation operator for the different ensemble members
-     observations!(Y,X,tnext,odata)
+     #observations!(Y,X,tnext,odata)
+     observations!(Y,X,tnext,Δtdyn,odata)
 
 	   # Generate samples from the observation noise
      ϵ = create_ensemble(Ne,zeros(Ny),Σϵ)
