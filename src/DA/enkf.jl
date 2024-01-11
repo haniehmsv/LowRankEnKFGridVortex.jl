@@ -210,6 +210,7 @@ function enkf(algo::AbstractSeqFilter, X::BasicEnsembleMatrix{Ne}, Σx, Σϵ, ts
 		   tj = t0+(i-1)*Δtobs+(j-1)*Δtdyn
        X = forecast(X,tj,Δtdyn,fdata)
 		end
+    Nx = state_length(X)
     push!(Xf, deepcopy(X))
 
      tnext = t0+i*Δtobs
@@ -233,7 +234,9 @@ function enkf(algo::AbstractSeqFilter, X::BasicEnsembleMatrix{Ne}, Σx, Σϵ, ts
 
 	   # Generate samples from the observation noise
      ϵ = create_ensemble(Ne,zeros(Ny),Σϵ)
-
+     
+     Jac = allocate_jacobian(Nx,Ny,algo)
+     Cx = allocate_state_gramian(Nx,algo)
      enkf_kalman_update!(algo,X,Y,Σx,Σϵ,Cx_history,Cy_history,rxhist,ryhist,tnext,ϵ,ystar,Cx,Cy,Gyy,Jac)
 
 	   # Filter state
