@@ -29,10 +29,13 @@ end
 
 function observations(x::AbstractVector,t,Δt,obs::VortexPressure,i::Int64)
     @unpack sens, config, Δs = obs
-    @unpack vvm, pfb = config
+    @unpack vvm = config
+    @unpack bodies = vvm[i] #i-th ensemble member
+    #for 1 body for now
+    pfb = bodies[1]
     @unpack points = pfb
 
-    states_to_vortices!(vvm[i],x) #i-th ensemble member
+    states_to_vortices!(vvm[i],x,Δt) #i-th ensemble member
 
     #solution at the current time step n
     vmn = deepcopy(vvm[i])

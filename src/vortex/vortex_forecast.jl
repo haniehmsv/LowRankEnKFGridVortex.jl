@@ -74,6 +74,13 @@ function time_advancement!(vm::VortexModel,sol::ConstrainedIBPoissonSolution,Δt
     setvortexpositions!(vm, X)
 end
 
+function time_advancement!(vm::VortexModel,Δt)
+    X = getvortexpositions(vm)
+    Ẋ = vortexvelocities!(vm,sol)
+    X .= X .+ Ẋ*Δt
+    setvortexpositions!(vm, X)
+end
+
 # vortices released at one-third of the way from the edge to the last released vortex from that edge
 function createsheddedvortices(plate::Plate,oldvortices)
 
