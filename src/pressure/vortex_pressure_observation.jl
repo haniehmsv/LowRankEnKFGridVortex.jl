@@ -29,7 +29,7 @@ end
 
 function observations(x::AbstractVector,t,Δt,obs::VortexPressure,i::Int64)
     @unpack sens, config, Δs = obs
-    @unpack vvm = config
+    @unpack vvm, intermediate_vm = config
     @unpack bodies = vvm[i] #i-th ensemble member
     #for 1 body for now
     pfb = bodies[1]
@@ -39,12 +39,21 @@ function observations(x::AbstractVector,t,Δt,obs::VortexPressure,i::Int64)
 
     #solution at the current time step n
     vmn = deepcopy(vvm[i])
-    vm1 = deepcopy(vvm[i])
     soln = solve(vmn)
     γn = soln.f./Δs;
 
-    #advance the solution to the next time step by advection and release of new vortices
-    time_advancement!(vm1,Δt)
+    #solution at the next time step n+1
+    vm1 = deepcopy(vvm[i])
+    states_to_vortices!(vm1,x,Δt)
+    int_vm = deepcopy(intermediate_vm)
+    construct_intermediate_model!(int_vm,vm1)
+    sol = ConstrainedIBPoissonSolution(int_vm._ψ, int_vm._f, zeros(Float64,Nb), zeros(Float64,Ne))
+    time_advancement!(int_vm,sol,Δt)
+    vm1.vortices = deepcopy(int_vm.vortices)
+    for i=1:Nb
+        vm1.bodies[i].Γ = deepcopy(int_vm.bodies[i].Γ)
+    end
+
     vLEnew, vTEnew = createsheddedvortices(points,vm1.vortices[end-1:end])
     pushvortices!(vm1,vLEnew,vTEnew)
     solnp1 = solve(vm1)
