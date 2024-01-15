@@ -51,7 +51,9 @@ function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{Nb,Ne},i::Int64)
     sol = ConstrainedIBPoissonSolution(intermediate_vm._ψ, intermediate_vm._f, zeros(Float64,Nb), zeros(Float64,Ne))
     time_advancement!(intermediate_vm,sol,Δt)
     vm.vortices = deepcopy(intermediate_vm.vortices)
-    vm.bodies = deepcopy(intermediate_vm.bodies)
+    for i=1:Nb
+        vm.bodies[i].Γ = deepcopy(intermediate_vm.bodies[i].Γ)
+    end
 
     vLEnew, vTEnew = createsheddedvortices(points,vm.vortices[end-1:end])
     pushvortices!(vm,vLEnew,vTEnew)
