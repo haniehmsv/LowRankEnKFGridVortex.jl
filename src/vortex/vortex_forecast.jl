@@ -10,6 +10,8 @@ mutable struct VortexForecast{withfreestream,Nb,Ne} <: AbstractForecastOperator
     "vortex model from GridPotentialFlow.jl"
     vvm :: Vector{VortexModel}
 
+    intermediate_vm :: VortexModel
+
     "Number of vortices"
     Nv :: Int64
 
@@ -25,7 +27,12 @@ function VortexForecast(vvm::Vector{VortexModel{Nb,Ne,TS,TU,TE,TF,TX,ILS}}) wher
     withfreestream = vm.U∞ == 0.0 ? false : true
     Nv = length(vm.vortices)
     Nx = 3*Nv
-    VortexForecast{withfreestream,Nb,Ne}(vvm,Nv)
+    intermediate_bodies = deepcopy(vm.bodies)
+    for i=1:Nb
+        intermediate_bodies[i].edges = Int64[]
+    end
+    intermediate_vm = VortexModel(vm.g,vortices=[vm.vortices...],bodies=intermediate_bodies,U∞=vm.U∞)
+    VortexForecast{withfreestream,Nb,Ne}(vvm,intermediate_vm,Nv)
 end
 
 
