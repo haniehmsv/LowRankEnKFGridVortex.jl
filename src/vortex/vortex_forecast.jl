@@ -67,7 +67,7 @@ function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{Nb,Ne},i::Int64)
 end
 
 """construct_intermediate_model!(intermediate_vm::VortexModel{Nb,0},vm::VortexModel{Nb,Ne}) where {Nb,Ne} --> VortexModel{Nb,0}
-an intermediate vortex model with all fields the same as vm except that intermediate_vm has zero regularized edge. This allows
+an intermediate vortex model with all fields the same as vm except that intermediate_vm has no regularized edge. This allows
 the solution of the system for the existing vortices which solves solve!(sol::ConstrainedIBPoissonSolution, 
 vm::VortexModel{Nb,0,ConstrainedIBPoisson{Nb,TU,TF}}) in the vortexmodel.jl file. 
 """
@@ -80,6 +80,8 @@ function construct_intermediate_model!(intermediate_vm::VortexModel{Nb,0},vm::Vo
     end
 end
 
+"""Advances the motion of vortices in one time step for the existing vortices in the domain and a body with no regularized edge.
+Used in the foreward model."""
 function time_advancement!(vm::VortexModel,sol::ConstrainedIBPoissonSolution,Δt)
     X = getvortexpositions(vm)
     Ẋ = vortexvelocities!(vm,sol)
@@ -87,9 +89,11 @@ function time_advancement!(vm::VortexModel,sol::ConstrainedIBPoissonSolution,Δt
     setvortexpositions!(vm, X)
 end
 
+"""Advances the motion of vortices in one time step for the existing vortices in the domain and a body with Ne regularized edge.
+Used in the observation model."""
 function time_advancement!(vm::VortexModel,Δt)
     X = getvortexpositions(vm)
-    Ẋ = vortexvelocities!(vm,sol)
+    Ẋ = vortexvelocities!(vm)
     X .= X .+ Ẋ*Δt
     setvortexpositions!(vm, X)
 end
