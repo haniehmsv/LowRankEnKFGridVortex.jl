@@ -35,7 +35,7 @@ function observations(x::AbstractVector,t,Δt,obs::VortexPressure,i::Int64)
     pfb = bodies[1]
     @unpack points = pfb
 
-    states_to_vortices!(vvm[i],x,Δt) #i-th ensemble member
+    states_to_vortices!(vvm[i],x) #i-th ensemble member
 
     #solution at the current time step n
     vmn = deepcopy(vvm[i])

@@ -18,3 +18,9 @@ function states_to_vortices!(vm::VortexModel{Nb,Ne},x::AbstractVector,Δt) where
         vm.vortices.Γ[end-Ne+k] = x[end-Ne+k]*Δt
     end
 end
+
+function states_to_vortices!(vm::VortexModel{Nb,Ne},x::AbstractVector) where {Nb,Ne}
+    @inbounds for (i, vortex) in enumerate(vm.vortices)
+        [vortex.x, vortex.y, vortex.Γ] .= x[3i-2:3i]
+    end
+end
