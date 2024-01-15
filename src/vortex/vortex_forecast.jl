@@ -47,7 +47,7 @@ function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{Nb,Ne},i::Int64)
         intermediate_bodies[i].edges = Int64[]
     end
     
-    intermediate_vm = VortexModel(vm.g,vortices=[vm.vortices...],bodies=intermediate_bodies)
+    intermediate_vm = VortexModel(vm.g,vortices=[vm.vortices...],bodies=intermediate_bodies,U∞=vm.U∞)
     sol = ConstrainedIBPoissonSolution(intermediate_vm._ψ, intermediate_vm._f, zeros(Float64,Nb), zeros(Float64,Ne))
     time_advancement!(intermediate_vm,sol,Δt)
     vm.vortices = deepcopy(intermediate_vm.vortices)
@@ -57,8 +57,7 @@ function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{Nb,Ne},i::Int64)
 
     vLEnew, vTEnew = createsheddedvortices(points,vm.vortices[end-1:end])
     pushvortices!(vm,vLEnew,vTEnew)
-    vm1 = deepcopy(vm)
-    newsol = solve(vm1)
+    newsol = solve(vm)
 
     xnew = similar(x[1:end])
     # New vortices released from the two edges augment the state vector by 3*Ne
