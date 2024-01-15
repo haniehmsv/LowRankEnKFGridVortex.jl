@@ -24,12 +24,9 @@ Allocate the structure for forecasting of vortex dynamics
 """
 function VortexForecast(vvm::Vector{VortexModel{Nb,Ne,TS,TU,TE,TF,TX,ILS}}) where {Nb,Ne,TS,TU,TE,TF,TX,ILS}
 
-    intermediate_vvm = VortexModel[]
-    for i in 1:length(vvm)
-        intermediate_bodies = deepcopy(vvm[i].bodies)
-        for j=1:Nb
-            intermediate_bodies[j].edges = Int64[]
-        end
+    intermediate_bodies = deepcopy(vvm[1].bodies)
+    for j=1:Nb
+        intermediate_bodies[j].edges = Int64[]
     end
     intermediate_vm = VortexModel(vvm[1].g,vortices=[vvm[1].vortices...],bodies=intermediate_bodies,U∞=vvm[1].U∞)
     withfreestream = vvm[1].U∞ == 0.0 ? false : true
