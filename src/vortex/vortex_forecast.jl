@@ -10,7 +10,7 @@ mutable struct VortexForecast{withfreestream,Nb,Ne} <: AbstractForecastOperator
     "vortex model from GridPotentialFlow.jl"
     vvm :: Vector{VortexModel}
 
-    intermediate_vvm :: Vector{VortexModel}
+    intermediate_vm :: VortexModel
 
     "Number of vortices"
     Nv :: Int64
@@ -30,21 +30,19 @@ function VortexForecast(vvm::Vector{VortexModel{Nb,Ne,TS,TU,TE,TF,TX,ILS}}) wher
         for j=1:Nb
             intermediate_bodies[j].edges = Int64[]
         end
-        push!(intermediate_vvm, VortexModel(vvm[i].g,vortices=[vvm[i].vortices...],bodies=intermediate_bodies,U∞=vvm[i].U∞))
     end
-
+    intermediate_vm = VortexModel(vvm[1].g,vortices=[vvm[1].vortices...],bodies=intermediate_bodies,U∞=vvm[1].U∞)
     withfreestream = vvm[1].U∞ == 0.0 ? false : true
     Nv = length(vvm[1].vortices)
     Nx = 3*Nv
-    VortexForecast{withfreestream,Nb,Ne}(vvm,intermediate_vvm,Nv)
+    VortexForecast{withfreestream,Nb,Ne}(vvm,intermediate_vm,Nv)
 end
 
 
 
 function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{Nb,Ne},i::Int64) where {Nb,Ne}
-    @unpack vvm, intermediate_vvm = fdata
+    @unpack vvm, intermediate_vm = fdata
     vm = vvm[i] #i-th ensemble member
-    int_vm = intermediate_vvm[i]
     @unpack bodies = vm
     #for 1 body for now
     pfb = bodies[1]
@@ -54,18 +52,18 @@ function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{Nb,Ne},i::Int64)
 
     #solve the system for the existing vortices (vortexmode.jl)
     #which solves solve!(sol::ConstrainedIBPoissonSolution, vm::VortexModel{Nb,0,ConstrainedIBPoisson{Nb,TU,TF}})
-    int_vm.bodies = deepcopy(vm.bodies)
-    int_vm.vortices = deepcopy(vm.vortices)
-    int_vm.U∞ = deepcopy(vm.U∞)
+    intermediate_vm.bodies = deepcopy(vm.bodies)
+    intermediate_vm.vortices = deepcopy(vm.vortices)
+    intermediate_vm.U∞ = deepcopy(vm.U∞)
     for i=1:Nb
-        int_vm.bodies[i].edges = Int64[]
+        intermediate_vm.bodies[i].edges = Int64[]
     end
 
-    sol = ConstrainedIBPoissonSolution(int_vm._ψ, int_vm._f, zeros(Float64,Nb), zeros(Float64,Ne))
-    time_advancement!(int_vm,sol,Δt)
-    vm.vortices = deepcopy(int_vm.vortices)
+    sol = ConstrainedIBPoissonSolution(intermediate_vm._ψ, intermediate_vm._f, zeros(Float64,Nb), zeros(Float64,Ne))
+    time_advancement!(intermediate_vm,sol,Δt)
+    vm.vortices = deepcopy(intermediate_vm.vortices)
     for i=1:Nb
-        vm.bodies[i].Γ = deepcopy(int_vm.bodies[i].Γ)
+        vm.bodies[i].Γ = deepcopy(intermediate_vm.bodies[i].Γ)
     end
 
     vLEnew, vTEnew = createsheddedvortices(points,vm.vortices[end-1:end])
