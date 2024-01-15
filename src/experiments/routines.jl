@@ -13,7 +13,7 @@ end
 function surface_interpolation(p::ScalarData,pfb::PotentialFlowBody,sens::Sensor)
     xsens = deepcopy(sens.x)
     ysens = deepcopy(sens.y)
-    xs, ys = deepcopy(collect(pfb.points))
+    xs, ys = deepcopy(collect(pfb))
     x_cent, y_cent = pfb.points.cent
 
     @. xs -= x_cent

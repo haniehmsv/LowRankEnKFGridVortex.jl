@@ -5,13 +5,10 @@ export forecast, VortexForecast, time_advancement!, createsheddedvortices
 #### FORECAST OPERATORS ####
 
 
-mutable struct VortexForecast{withfreestream,BT,Ne} <: AbstractForecastOperator
+mutable struct VortexForecast{withfreestream,Nb,Ne} <: AbstractForecastOperator
 
     "vortex model from GridPotentialFlow.jl"
     vvm :: Vector{VortexModel}
-
-    "potential flow body from GridPotentialFlow.jl"
-    pfb :: PotentialFlowBody
 
     "Number of vortices"
     Nv :: Int64
@@ -23,35 +20,49 @@ end
 
 Allocate the structure for forecasting of vortex dynamics
 """
-function VortexForecast(vvm::Vector{VortexModel{Nb,Ne,TS,TU,TE,TF,TX,ILS}},pfb::PotentialFlowBody) where {Nb,Ne,TS,TU,TE,TF,TX,ILS}
-    withfreestream = vvm[1].U∞ == 0.0 ? false : true
-    Nv = length(vvm[1].vortices)
+function VortexForecast(vvm::Vector{VortexModel{Nb,Ne,TS,TU,TE,TF,TX,ILS}}) where {Nb,Ne,TS,TU,TE,TF,TX,ILS}
+    vm = vvm[1]
+    withfreestream = vm.U∞ == 0.0 ? false : true
+    Nv = length(vm.vortices)
     Nx = 3*Nv
-    body = pfb.points
-    VortexForecast{withfreestream,typeof(body),Ne}(vvm,pfb,Nv)
+    VortexForecast{withfreestream,Nb,Ne}(vvm,Nv)
 end
 
 
 
-function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{Ne},i::Int64) where {Ne}
-    @unpack vvm, pfb = fdata
-    @unpack points = pfb
+function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{Nb,Ne},i::Int64) where {Nb,Ne}
+    @unpack vvm = fdata
     vm = vvm[i] #i-th ensemble member
-    time_advancement!(vm,Δt)
+    @unpack bodies = vm
+    #for 1 body for now
+    pfb = bodies[1]
+    @unpack points = pfb
+    
+    states_to_vortices!(vm,x,Δt)
+
+    #solve the system for the existing vortices (vortexmode.jl)
+    #which solve solve!(sol::ConstrainedIBPoissonSolution, vm::VortexModel{Nb,0,ConstrainedIBPoisson{Nb,TU,TF}})
+    intermediate_vm = VortexModel(vm.g,vortices=[vm.vortices...],bodies=bodies)
+    sol = ConstrainedIBPoissonSolution(intermediate_vm._ψ, intermediate_vm._f, zeros(Float64,Nb), zeros(Float64,Ne))
+    time_advancement!(intermediate_vm,sol,Δt)
+    vm.vortices = deepcopy(intermediate_vm.vortices)
+    vm.bodies = deepcopy(intermediate_vm.bodies)
+
     vLEnew, vTEnew = createsheddedvortices(points,vm.vortices[end-1:end])
     pushvortices!(vm,vLEnew,vTEnew)
+    newsol = solve(vm)
 
-    xnew = deepcopy(x[1:end])
+    xnew = similar(x[1:end])
     # New vortices released from the two edges augment the state vector by 3*Ne
     append!(xnew,zeros(6))
-    vortices_to_states!(xnew,vm)
+    vortices_to_states!(xnew,vm,newsol,Δt)
     fdata.Nv = length(vm.vortices)
     return xnew
 end
 
-function time_advancement!(vm::VortexModel,Δt)
+function time_advancement!(vm::VortexModel,sol::ConstrainedIBPoissonSolution,Δt)
     X = getvortexpositions(vm)
-    Ẋ = vortexvelocities!(vm)
+    Ẋ = vortexvelocities!(vm,sol)
     X .= X .+ Ẋ*Δt
     setvortexpositions!(vm, X)
 end
