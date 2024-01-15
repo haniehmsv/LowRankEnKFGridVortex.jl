@@ -57,7 +57,8 @@ function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{Nb,Ne},i::Int64)
 
     vLEnew, vTEnew = createsheddedvortices(points,vm.vortices[end-1:end])
     pushvortices!(vm,vLEnew,vTEnew)
-    newsol = solve(vm)
+    vm1 = deepcopy(vm)
+    newsol = solve(vm1)
 
     xnew = similar(x[1:end])
     # New vortices released from the two edges augment the state vector by 3*Ne
