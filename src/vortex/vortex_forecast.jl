@@ -10,7 +10,7 @@ mutable struct VortexForecast{withfreestream,Nb,Ne} <: AbstractForecastOperator
     "vortex model from GridPotentialFlow.jl"
     vvm :: Vector{VortexModel}
 
-    intermediate_vvm :: VortexModel
+    intermediate_vvm :: Vector{VortexModel}
 
     "Number of vortices"
     Nv :: Int64
