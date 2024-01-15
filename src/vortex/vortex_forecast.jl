@@ -46,9 +46,6 @@ function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{Nb,Ne},i::Int64)
     @unpack points = pfb
     
     states_to_vortices!(vm,x,Δt)
-
-    #solve the system for the existing vortices (vortexmode.jl)
-    #which solves solve!(sol::ConstrainedIBPoissonSolution, vm::VortexModel{Nb,0,ConstrainedIBPoisson{Nb,TU,TF}})
     construct_intermediate_model!(intermediate_vm,vm)
     sol = ConstrainedIBPoissonSolution(intermediate_vm._ψ, intermediate_vm._f, zeros(Float64,Nb), zeros(Float64,Ne))
     time_advancement!(intermediate_vm,sol,Δt)
@@ -69,6 +66,11 @@ function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{Nb,Ne},i::Int64)
     return xnew
 end
 
+"""construct_intermediate_model!(intermediate_vm::VortexModel{Nb,0},vm::VortexModel{Nb,Ne}) where {Nb,Ne} --> VortexModel{Nb,0}
+an intermediate vortex model with all fields the same as vm except that intermediate_vm has zero regularized edge. This allows
+the solution of the system for the existing vortices which solves solve!(sol::ConstrainedIBPoissonSolution, 
+vm::VortexModel{Nb,0,ConstrainedIBPoisson{Nb,TU,TF}}) in the vortexmodel.jl file. 
+"""
 function construct_intermediate_model!(intermediate_vm::VortexModel{Nb,0},vm::VortexModel{Nb,Ne}) where {Nb,Ne}
     intermediate_vm.bodies = deepcopy(vm.bodies)
     intermediate_vm.vortices = deepcopy(vm.vortices)
