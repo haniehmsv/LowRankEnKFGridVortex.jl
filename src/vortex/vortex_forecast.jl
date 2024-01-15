@@ -41,12 +41,11 @@ function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{Nb,Ne},i::Int64)
     states_to_vortices!(vm,x,Δt)
 
     #solve the system for the existing vortices (vortexmode.jl)
-    #which solve solve!(sol::ConstrainedIBPoissonSolution, vm::VortexModel{Nb,0,ConstrainedIBPoisson{Nb,TU,TF}})
+    #which solves solve!(sol::ConstrainedIBPoissonSolution, vm::VortexModel{Nb,0,ConstrainedIBPoisson{Nb,TU,TF}})
     intermediate_bodies = deepcopy(vm.bodies)
     for i=1:Nb
         intermediate_bodies[i].edges = Int64[]
     end
-    
     intermediate_vm = VortexModel(vm.g,vortices=[vm.vortices...],bodies=intermediate_bodies,U∞=vm.U∞)
     sol = ConstrainedIBPoissonSolution(intermediate_vm._ψ, intermediate_vm._f, zeros(Float64,Nb), zeros(Float64,Ne))
     time_advancement!(intermediate_vm,sol,Δt)
