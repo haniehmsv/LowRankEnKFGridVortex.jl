@@ -49,13 +49,7 @@ function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{Nb,Ne},i::Int64)
 
     #solve the system for the existing vortices (vortexmode.jl)
     #which solves solve!(sol::ConstrainedIBPoissonSolution, vm::VortexModel{Nb,0,ConstrainedIBPoisson{Nb,TU,TF}})
-    intermediate_vm.bodies = deepcopy(vm.bodies)
-    intermediate_vm.vortices = deepcopy(vm.vortices)
-    intermediate_vm.U∞ = deepcopy(vm.U∞)
-    for i=1:Nb
-        intermediate_vm.bodies[i].edges = Int64[]
-    end
-
+    construct_intermediate_model!(intermediate_vm,vm)
     sol = ConstrainedIBPoissonSolution(intermediate_vm._ψ, intermediate_vm._f, zeros(Float64,Nb), zeros(Float64,Ne))
     time_advancement!(intermediate_vm,sol,Δt)
     vm.vortices = deepcopy(intermediate_vm.vortices)
@@ -73,6 +67,15 @@ function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{Nb,Ne},i::Int64)
     vortices_to_states!(xnew,vm,newsol,Δt)
     fdata.Nv = length(vm.vortices)
     return xnew
+end
+
+function construct_intermediate_model!(intermediate_vm::VortexModel{Nb,0},vm::VortexModel{Nb,Ne}) where {Nb,Ne}
+    intermediate_vm.bodies = deepcopy(vm.bodies)
+    intermediate_vm.vortices = deepcopy(vm.vortices)
+    intermediate_vm.U∞ = deepcopy(vm.U∞)
+    for i=1:Nb
+        intermediate_vm.bodies[i].edges = Int64[]
+    end
 end
 
 function time_advancement!(vm::VortexModel,sol::ConstrainedIBPoissonSolution,Δt)
