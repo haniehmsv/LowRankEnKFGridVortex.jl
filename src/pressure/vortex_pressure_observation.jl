@@ -46,14 +46,7 @@ function observations(x::AbstractVector,t,Δt,obs::VortexPressure,i::Int64)
     vm1 = deepcopy(vvm[i])
     states_to_vortices!(vm1,x,Δt)
     int_vm = deepcopy(intermediate_vm)
-    construct_intermediate_model!(int_vm,vm1)
-    sol = ConstrainedIBPoissonSolution(int_vm._ψ, int_vm._f, zeros(Float64,Nb), zeros(Float64,Ne))
-    time_advancement!(int_vm,sol,Δt)
-    vm1.vortices = deepcopy(int_vm.vortices)
-    for i=1:Nb
-        vm1.bodies[i].Γ = deepcopy(int_vm.bodies[i].Γ)
-    end
-
+    time_advancement!(vm1,int_vm,Δt)
     vLEnew, vTEnew = createsheddedvortices(points,vm1.vortices[end-1:end])
     pushvortices!(vm1,vLEnew,vTEnew)
     solnp1 = solve(vm1)
