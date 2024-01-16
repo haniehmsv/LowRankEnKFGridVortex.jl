@@ -1,12 +1,12 @@
 export vortices_to_states!, states_to_vortices!
 
 
-function vortices_to_states!(x::AbstractVector,vm::VortexModel{Nb,Ne},newsol::ConstrainedIBPoissonSolution,Δt) where {Nb,Ne}
+function vortices_to_states!(x::AbstractVector,vm::VortexModel{Nb,Ne},sol::ConstrainedIBPoissonSolution,Δt) where {Nb,Ne}
     @inbounds for (i, vortex) in enumerate(vm.vortices)
         x[3i-2:3i] .= (vortex.x, vortex.y, vortex.Γ)
     end
     @inbounds for k=1:Ne
-        x[end-Ne+k] = newsol.δΓ_vec[k]/Δt
+        x[end-Ne+k] = sol.δΓ_vec[k]/Δt
     end
 end
 
