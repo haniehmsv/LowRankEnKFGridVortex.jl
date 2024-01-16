@@ -16,13 +16,13 @@ mutable struct VortexPressure{Ny,withfreestream,DST} <: AbstractObservationOpera
 end
 
 function VortexPressure(sens::Sensor,config::VortexForecast)
-    @unpack vvm, pfb = config
+    @unpack vvm= config
     vm = vvm[1]
     withfreestream = vm.U∞ == 0.0 ? false : true
     Nv = config.Nv
     Nx = 3*Nv
     Ny = length(sens.x)
-    Δs = dlengthmid(pfb.points)
+    Δs = dlengthmid(vm.bodies[1].points)
     return VortexPressure{Ny,withfreestream,typeof(Δs)}(sens,config,Δs)
 end
 
