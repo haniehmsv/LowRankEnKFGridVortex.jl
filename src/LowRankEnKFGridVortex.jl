@@ -15,7 +15,6 @@ using UnPack
 include("ensemble.jl")
 include("forecast.jl")
 include("observation.jl")
-include("utilities.jl")
 
 include("vortex/initial.jl")
 include("vortex/vortex.jl")
