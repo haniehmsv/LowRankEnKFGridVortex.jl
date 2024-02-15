@@ -22,7 +22,7 @@ end
 
 Allocate the structure for forecasting of vortex dynamics
 """
-function VortexForecast(vvm::Vector{VortexModel{Nb,Ne,TS,TU,TE,TF,TX,ILS}}) where {Nb,Ne,TS,TU,TE,TF,TX,ILS}
+function VortexForecast(vvm::Vector{VortexModel{Nb,Ne,T,TS,TU,TE,TF,TX,ILS}}) where {Nb,Ne,T,TS,TU,TE,TF,TX,ILS}
 
     intermediate_bodies = deepcopy(vvm[1].bodies)
     for j=1:Nb
