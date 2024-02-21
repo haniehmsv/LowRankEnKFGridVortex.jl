@@ -81,7 +81,7 @@ end
 
 """Advances the motion of vortices in one time step for the existing vortices in the domain and a body with 0 regularized edge.
 Used in the observation model."""
-function advect_vortices!(vm::VortexModel{Nb,0},Δt)
+function advect_vortices!(vm::VortexModel{Nb,0},Δt) where {Nb}
     X = getvortexpositions(vm)
     Ẋ = vortexvelocities!(vm)
     X .= X .+ Ẋ*Δt
