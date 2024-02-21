@@ -1,6 +1,6 @@
 
 
-export forecast, VortexForecast, time_advancement!, createsheddedvortices
+export forecast, VortexForecast, advect_vortices!, createsheddedvortices, construct_intermediate_model!, retrieve_vm_from_intermediatevm!
 
 #### FORECAST OPERATORS ####
 
@@ -9,8 +9,6 @@ mutable struct VortexForecast{withfreestream,Nb,Ne} <: AbstractForecastOperator
 
     "vortex model from GridPotentialFlow.jl"
     vvm :: Vector{VortexModel}
-
-    intermediate_vm :: VortexModel
 
     "Number of vortices"
     Nv :: Int64
@@ -23,22 +21,16 @@ end
 Allocate the structure for forecasting of vortex dynamics
 """
 function VortexForecast(vvm::Vector{VortexModel{Nb,Ne,TS,TU,TE,TF,TX,ILS}}) where {Nb,Ne,TS,TU,TE,TF,TX,ILS}
-
-    intermediate_bodies = deepcopy(vvm[1].bodies)
-    for j=1:Nb
-        intermediate_bodies[j].edges = Int64[]
-    end
-    intermediate_vm = VortexModel(vvm[1].g,vortices=[vvm[1].vortices...],bodies=intermediate_bodies,U∞=vvm[1].U∞)
     withfreestream = vvm[1].U∞ == 0.0 ? false : true
     Nv = length(vvm[1].vortices)
     Nx = 3*Nv
-    VortexForecast{withfreestream,Nb,Ne}(vvm,intermediate_vm,Nv)
+    VortexForecast{withfreestream,Nb,Ne}(vvm,Nv)
 end
 
 
 
 function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{Nb,Ne},i::Int64) where {Nb,Ne}
-    @unpack vvm, intermediate_vm = fdata
+    @unpack vvm = fdata
     vm = vvm[i] #i-th ensemble member
     @unpack bodies = vm
     #for 1 body for now
@@ -57,21 +49,27 @@ function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{Nb,Ne},i::Int64)
     return xnew
 end
 
-# """construct_intermediate_model!(intermediate_vm::VortexModel{Nb,0},vm::VortexModel{Nb,Ne}) where {Nb,Ne} --> VortexModel{Nb,0}
-# an intermediate vortex model with all fields the same as vm except that intermediate_vm has no regularized edge. This allows
-# the solution of the system for the existing vortices which solves solve!(sol::ConstrainedIBPoissonSolution, 
-# vm::VortexModel{Nb,0,ConstrainedIBPoisson{Nb,TU,TF}}) in the vortexmodel.jl file. 
-# """
-# function construct_intermediate_model!(intermediate_vm::VortexModel{Nb,0},vm::VortexModel{Nb,Ne}) where {Nb,Ne}
-#     intermediate_vm.bodies = deepcopy(vm.bodies)
-#     intermediate_vm.vortices = deepcopy(vm.vortices)
-#     intermediate_vm.U∞ = deepcopy(vm.U∞)
-#     for i=1:Nb
-#         intermediate_vm.bodies[i].edges = Int64[]
-#     end
-# end
+"""construct_intermediate_model!(intermediate_vm::VortexModel{Nb,0},vm::VortexModel{Nb,Ne}) --> VortexModel{Nb,0}
+an intermediate vortex model with all fields the same as vm except that intermediate_vm has no regularized edge. This allows
+the solution of the system for the existing vortices which solves solve!(sol::ConstrainedIBPoissonSolution, 
+vm::VortexModel{Nb,0,ConstrainedIBPoisson{Nb,TU,TF}}) in the vortexmodel.jl file. 
+"""
+function construct_intermediate_model!(intermediate_vm::VortexModel{Nb,0},vm::VortexModel{Nb,Ne}) where {Nb,Ne}
+    intermediate_vm.bodies = deepcopy(vm.bodies)
+    intermediate_vm.vortices = deepcopy(vm.vortices)
+    intermediate_vm.U∞ = deepcopy(vm.U∞)
+    for i=1:Nb
+        intermediate_vm.bodies[i].edges = Int64[]
+    end
+end
 
-"""Advances the motion of vortices in one time step for the existing vortices in the domain and a body with no regularized edge.
+function retrieve_vm_from_intermediatevm!(vm::VortexModel{Nb,Ne},intermediate_vm::VortexModel{Nb,0}) where {Nb,Ne}
+    getΓ.(vm.bodies) = deepcopy(getΓ.(intermediate_vm.bodies))
+    vm.vortices = deepcopy(intermediate_vm.vortices)
+    vm.U∞ = deepcopy(intermediate_vm.U∞)
+end
+
+"""Advances the motion of vortices in one time step for the existing vortices in the domain and a body with Ne=1 regularized edge.
 Used in the foreward model."""
 function advect_vortices!(vm::VortexModel{Nb,Ne},Δt) where {Nb,Ne}
     X = getvortexpositions(vm)
@@ -81,9 +79,9 @@ function advect_vortices!(vm::VortexModel{Nb,Ne},Δt) where {Nb,Ne}
     setvortexpositions!(vm, X)
 end
 
-"""Advances the motion of vortices in one time step for the existing vortices in the domain and a body with Ne regularized edge.
+"""Advances the motion of vortices in one time step for the existing vortices in the domain and a body with 0 regularized edge.
 Used in the observation model."""
-function advect_vortices!(vm::VortexModel,Δt)
+function advect_vortices!(vm::VortexModel{Nb,0},Δt)
     X = getvortexpositions(vm)
     Ẋ = vortexvelocities!(vm)
     X .= X .+ Ẋ*Δt
