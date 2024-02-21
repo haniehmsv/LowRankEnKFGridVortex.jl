@@ -29,7 +29,7 @@ end
 
 
 
-function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{Nb,Ne},i::Int64) where {Nb,Ne}
+function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{withfreestream,Nb,Ne},i::Int64) where {withfreestream,Nb,Ne}
     @unpack vvm = fdata
     vm = vvm[i] #i-th ensemble member
     @unpack bodies = vm
