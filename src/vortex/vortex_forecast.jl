@@ -46,48 +46,37 @@ function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{Nb,Ne},i::Int64)
     @unpack points = pfb
     
     states_to_vortices!(vm,x,Δt)
-    time_advancement!(vm,intermediate_vm,Δt)
+    advect_vortices!(vm,Δt)
     vLEnew, vTEnew = createsheddedvortices(points,vm.vortices[end-1:end])
     pushvortices!(vm,vLEnew,vTEnew)
-    sol = solve(vm)
-
     xnew = similar(x[1:end])
     # New vortices released from the two edges augment the state vector by 3*Ne
-    append!(xnew,zeros(3*Ne))
-    vortices_to_states!(xnew,vm,sol,Δt)
+    append!(xnew,zeros(6))
+    vortices_to_states!(xnew,vm,x,Δt)
     fdata.Nv = length(vm.vortices)
     return xnew
 end
 
-function time_advancement!(vm::VortexModel{Nb,Ne},intermediate_vm::VortexModel{Nb,0},Δt) where {Nb,Ne}
-    construct_intermediate_model!(intermediate_vm,vm)
-    sol = ConstrainedIBPoissonSolution(intermediate_vm._ψ, intermediate_vm._f, zeros(Float64,Nb), zeros(Float64,Ne))
-    advect_vortices!(intermediate_vm,sol,Δt)
-    vm.vortices = deepcopy(intermediate_vm.vortices)
-    for i=1:Nb
-        vm.bodies[i].Γ = deepcopy(intermediate_vm.bodies[i].Γ)
-    end
-end
-
-"""construct_intermediate_model!(intermediate_vm::VortexModel{Nb,0},vm::VortexModel{Nb,Ne}) where {Nb,Ne} --> VortexModel{Nb,0}
-an intermediate vortex model with all fields the same as vm except that intermediate_vm has no regularized edge. This allows
-the solution of the system for the existing vortices which solves solve!(sol::ConstrainedIBPoissonSolution, 
-vm::VortexModel{Nb,0,ConstrainedIBPoisson{Nb,TU,TF}}) in the vortexmodel.jl file. 
-"""
-function construct_intermediate_model!(intermediate_vm::VortexModel{Nb,0},vm::VortexModel{Nb,Ne}) where {Nb,Ne}
-    intermediate_vm.bodies = deepcopy(vm.bodies)
-    intermediate_vm.vortices = deepcopy(vm.vortices)
-    intermediate_vm.U∞ = deepcopy(vm.U∞)
-    for i=1:Nb
-        intermediate_vm.bodies[i].edges = Int64[]
-    end
-end
+# """construct_intermediate_model!(intermediate_vm::VortexModel{Nb,0},vm::VortexModel{Nb,Ne}) where {Nb,Ne} --> VortexModel{Nb,0}
+# an intermediate vortex model with all fields the same as vm except that intermediate_vm has no regularized edge. This allows
+# the solution of the system for the existing vortices which solves solve!(sol::ConstrainedIBPoissonSolution, 
+# vm::VortexModel{Nb,0,ConstrainedIBPoisson{Nb,TU,TF}}) in the vortexmodel.jl file. 
+# """
+# function construct_intermediate_model!(intermediate_vm::VortexModel{Nb,0},vm::VortexModel{Nb,Ne}) where {Nb,Ne}
+#     intermediate_vm.bodies = deepcopy(vm.bodies)
+#     intermediate_vm.vortices = deepcopy(vm.vortices)
+#     intermediate_vm.U∞ = deepcopy(vm.U∞)
+#     for i=1:Nb
+#         intermediate_vm.bodies[i].edges = Int64[]
+#     end
+# end
 
 """Advances the motion of vortices in one time step for the existing vortices in the domain and a body with no regularized edge.
 Used in the foreward model."""
-function advect_vortices!(vm::VortexModel,sol::ConstrainedIBPoissonSolution,Δt)
+function advect_vortices!(vm::VortexModel{Nb,Ne},Δt) where {Nb,Ne}
     X = getvortexpositions(vm)
-    Ẋ = vortexvelocities!(vm,sol)
+    subtractcirculation!(vm.bodies, vm.vortices.Γ[end-Ne])
+    Ẋ = vortexvelocities!(vm)
     X .= X .+ Ẋ*Δt
     setvortexpositions!(vm, X)
 end
