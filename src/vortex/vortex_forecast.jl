@@ -64,7 +64,7 @@ function construct_intermediate_model!(intermediate_vm::VortexModel{Nb,0},vm::Vo
 end
 
 function retrieve_vm_from_intermediatevm!(vm::VortexModel{Nb,Ne},intermediate_vm::VortexModel{Nb,0}) where {Nb,Ne}
-    getΓ.(vm.bodies) = deepcopy(getΓ.(intermediate_vm.bodies))
+    getΓ.(vm.bodies) .= deepcopy(getΓ.(intermediate_vm.bodies))
     vm.vortices = deepcopy(intermediate_vm.vortices)
     vm.U∞ = deepcopy(intermediate_vm.U∞)
 end
