@@ -52,12 +52,15 @@ function observations(x::AbstractVector,t,Δt,obs::VortexPressure,i::Int64)
 
     #solution at the next time step n+1
     vm1 = deepcopy(vvm[i])
-    advect_vortices!(intermediate_vm,Δt)
-    retrieve_vm_from_intermediatevm!(vm1,intermediate_vm)
-    vLEnew, vTEnew = createsheddedvortices(points,vm1.vortices[end-1:end])
-    pushvortices!(vm1,vLEnew,vTEnew)
-    vm1.vortices.Γ[end-1] = x[end]*Δt
+    states_to_vortices!(vm1,x,Δt)
     subtractcirculation!(vm1.bodies, vm1.vortices.Γ[end-1])
+    solnp1 = solve(vm1)
+    vm1.vortices.Γ[end] = solnp1.δΓ_vec[1]
+    Xv = getvortexpositions(vm1) # gets bigger every time step because we add vortices
+    Ẋv = deepcopy(Xv)
+    vortexvelocities!(Ẋv, vm1, solnp1.ψ)
+    Xv .= Xv .+ Ẋ*Δt
+    setvortexpositions!(vm1, Xv)
     solnp1 = solve(vm1)
     γnp1 = solnp1.f./Δs
 
