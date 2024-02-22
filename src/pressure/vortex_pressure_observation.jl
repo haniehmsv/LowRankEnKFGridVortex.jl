@@ -75,12 +75,12 @@ function observations(x::AbstractVector,t,Δt,obs::VortexPressure,i::Int64)
 
     dp = ScalarData(Xs)
     pressurejump!(dp,γn,γnp1,v̄s,Δt,vmn.ilsys)
-    #p̄ = Nodes(Primal,soln.ψ)
-    #pressure!(p̄,v̄,dp,vmn.ilsys)
-    #p⁺, p⁻ = sided_pressures(p̄,dp,vmn.ilsys)
+    p̄ = Nodes(Primal,soln.ψ)
+    pressure!(p̄,v̄,dp,vmn.ilsys)
+    p⁺, p⁻ = sided_pressures(p̄,dp,vmn.ilsys)
 
     dp_sens = surface_interpolation(dp,pfb,sens)
 
-    return dp_sens
+    return dp_sens, p̄, p⁺
 end
 
