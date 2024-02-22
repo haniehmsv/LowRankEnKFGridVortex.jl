@@ -81,6 +81,6 @@ function observations(x::AbstractVector,t,Δt,obs::VortexPressure,i::Int64)
 
     dp_sens = surface_interpolation(dp,pfb,sens)
 
-    return dp_sens, p̄, p⁺
+    return dp_sens, p̄, p⁺, p⁻
 end
 
