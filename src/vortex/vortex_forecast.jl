@@ -67,7 +67,7 @@ end
 Used in the foreward model."""
 function advect_vortices!(vm::VortexModel{Nb,Ne},Δt) where {Nb,Ne}
     X = getvortexpositions(vm)
-    subtractcirculation!(vm.bodies, vm.vortices.Γ[end-1])
+    subtractcirculation!(vm.bodies, [vm.vortices.Γ[end-1]])
     Ẋ = vortexvelocities!(vm)
     X .= X .+ Ẋ*Δt
     setvortexpositions!(vm, X)
