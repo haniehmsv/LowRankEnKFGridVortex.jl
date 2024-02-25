@@ -3,9 +3,9 @@ export observations, VortexPressure, Sensor
 
 #### OBSERVATION OPERATORS ####
 
-struct Sensor
-  x :: Vector{Float64}
-  y :: Vector{Float64}
+struct Sensor{T}
+  x :: Vector{T}
+  y :: Vector{T}
   Nsens :: Int64
 end
 
