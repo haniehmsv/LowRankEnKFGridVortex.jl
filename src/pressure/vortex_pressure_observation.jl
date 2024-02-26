@@ -58,7 +58,7 @@ function observations(x::AbstractVector,t,Δt,obs::VortexPressure,i::Int64)
     # solving for v_TE
     solnp1 = solve(vm1)
     vm1.vortices.Γ[end] = solnp1.δΓ_vec[1]
-    subtractcirculation!(vm1.bodies, sol.δΓ_vec)
+    subtractcirculation!(vm1.bodies, solnp1.δΓ_vec)
     # advecting all vortices
     Xv = getvortexpositions(vm1)
     Ẋv = deepcopy(Xv)
