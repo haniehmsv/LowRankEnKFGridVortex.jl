@@ -79,3 +79,26 @@ function observations(x::AbstractVector,t,Δt,obs::VortexPressure,i::Int64)
     return dp_sens, p̄, p⁺, p⁻
 end
 
+"impulse"
+function calculate_impulse(config::VortexForecast,Δt)
+    @unpack vvm = config
+    vm = vvm[1]
+    @unpack bodies = vm
+    plate = bodies[1]
+    sol = solve(vm)
+    X = getvortexpositions(vm) # gets bigger every time step because we add vortices
+    Ẋ = deepcopy(X)
+
+    sol = solve(vm)
+    setvortexstrengths!(vm, sol.δΓ_vec, length(X.u)-1:length(X.u))
+    subtractcirculation!(vm.bodies, sol.δΓ_vec)
+    Px, Py = impulse(vm)
+
+    vortexvelocities!(Ẋ, vm, sol.ψ)
+    X .= X .+ Ẋ*Δt
+    setvortexpositions!(vm, X)
+
+    vLE, vTE = createsheddedvortices(plate,vm.vortices)
+    pushvortices!(vm,vLE,vTE)
+end
+
