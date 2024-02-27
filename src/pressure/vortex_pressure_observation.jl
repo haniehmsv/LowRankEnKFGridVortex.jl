@@ -101,5 +101,6 @@ function calculate_impulse(config::VortexForecast,Δt)
 
     vLE, vTE = createsheddedvortices(points,vm.vortices)
     pushvortices!(vm,vLE,vTE)
+    return Px, Py
 end
 
