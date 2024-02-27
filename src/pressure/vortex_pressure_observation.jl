@@ -1,5 +1,5 @@
 
-export observations, VortexPressure, Sensor
+export observations, VortexPressure, Sensor, impulse
 
 #### OBSERVATION OPERATORS ####
 
