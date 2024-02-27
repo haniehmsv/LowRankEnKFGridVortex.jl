@@ -30,12 +30,12 @@ function VortexPressure(sens::Sensor,config::VortexForecast)
     Nx = 3*Nv
     Ny = length(sens.x)
     Δs = dlengthmid(vm.bodies[1].points)
-    return VortexPressure{Ny,withfreestream,typeof(Δs)}(sens,config,intermediate_vm,Δs)
+    return VortexPressure{Ny,withfreestream,typeof(Δs)}(sens,config,Δs)
 end
 
 
 function observations(x::AbstractVector,t,Δt,obs::VortexPressure,i::Int64)
-    @unpack sens, config, intermediate_vm, Δs = obs
+    @unpack sens, config, Δs = obs
     @unpack vvm = config
     @unpack bodies = vvm[i] #i-th ensemble member
     #for 1 body for now
