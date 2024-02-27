@@ -38,6 +38,7 @@ function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{withfreestream,N
     @unpack points = pfb
     
     states_to_vortices!(vm,x,Δt)
+    subtractcirculation!(vm.bodies, [vm.vortices.Γ[end-1]])
     advect_vortices!(vm,Δt)
     vLEnew, vTEnew = createsheddedvortices(points,vm.vortices[end-1:end])
     pushvortices!(vm,vLEnew,vTEnew)
@@ -63,12 +64,21 @@ function construct_intermediate_model!(intermediate_vm::VortexModel{Nb,0},vm::Vo
     end
 end
 
-"""Advances the motion of vortices in one time step for the existing vortices in the domain and a body with Ne=1 regularized edge.
+"""Advances the motion of vortices in one time step for the existing vortices in the domain and a body with Ne=1 regularized edge. Also solves for the new vortex shedded at the TE.
 Used in the foreward model."""
 function advect_vortices!(vm::VortexModel{Nb,Ne},Δt) where {Nb,Ne}
     X = getvortexpositions(vm)
-    subtractcirculation!(vm.bodies, [vm.vortices.Γ[end-1]])
     Ẋ = vortexvelocities!(vm)
+    X .= X .+ Ẋ*Δt
+    setvortexpositions!(vm, X)
+end
+
+"""Advances the motion of vortices in one time step for the existing vortices in the domain.
+Used in the observation model."""
+function advect_vortices!(vm::VortexModel{Nb,Ne},sol::ConstrainedIBPoissonSolution,Δt) where {Nb,Ne}
+    X = getvortexpositions(vm)
+    Ẋ = deepcopy(X)
+    vortexvelocities!(Ẋ, vm, sol.ψ)
     X .= X .+ Ẋ*Δt
     setvortexpositions!(vm, X)
 end
