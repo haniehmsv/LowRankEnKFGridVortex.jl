@@ -1,5 +1,5 @@
 
-export observations, VortexPressure, Sensor, impulse
+export observations, VortexPressure, Sensor, calculate_impulse
 
 #### OBSERVATION OPERATORS ####
 
