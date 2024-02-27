@@ -30,7 +30,7 @@ function VortexPressure(sens::Sensor,config::VortexForecast)
     Nx = 3*Nv
     Ny = length(sens.x)
     Δs = dlengthmid(vm.bodies[1].points)
-    return VortexPressure{Ny,withfreestream,typeof(Δs)}(sens,config,intermediate_vm,Δs)
+    return VortexPressure{Ny,withfreestream,typeof(Δs)}(sens,config,Δs)
 end
 
 
