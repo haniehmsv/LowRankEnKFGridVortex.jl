@@ -35,7 +35,7 @@ end
 
 
 function observations(x::AbstractVector,t,Δt,obs::VortexPressure,i::Int64)
-    @unpack sens, config, intermediate_vm, Δs = obs
+    @unpack sens, config, Δs = obs
     @unpack vvm = config
     @unpack bodies = vvm[i] #i-th ensemble member
     #for 1 body for now
