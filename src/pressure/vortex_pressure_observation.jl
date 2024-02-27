@@ -84,6 +84,7 @@ function calculate_impulse(config::VortexForecast,Δt)
     @unpack vvm = config
     vm = vvm[1]
     @unpack bodies = vm
+    @unpack points = bodies[1]
     plate = bodies[1]
     sol = solve(vm)
     X = getvortexpositions(vm) # gets bigger every time step because we add vortices
@@ -98,7 +99,7 @@ function calculate_impulse(config::VortexForecast,Δt)
     X .= X .+ Ẋ*Δt
     setvortexpositions!(vm, X)
 
-    vLE, vTE = createsheddedvortices(plate,vm.vortices)
+    vLE, vTE = createsheddedvortices(points,vm.vortices)
     pushvortices!(vm,vLE,vTE)
 end
 
