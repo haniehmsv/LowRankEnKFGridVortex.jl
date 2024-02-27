@@ -12,19 +12,19 @@ end
 mutable struct VortexPressure{Ny,withfreestream,DST} <: AbstractObservationOperator{Ny,true}
     sens::Sensor
     config::VortexForecast
-    intermediate_vm :: VortexModel
+    # intermediate_vm :: VortexModel
     Δs::DST
 end
 
 function VortexPressure(sens::Sensor,config::VortexForecast)
     @unpack vvm= config
     vm = vvm[1]
-    intermediate_bodies = deepcopy(vm.bodies)
-    Nb = length(vm.bodies)
-    for j=1:Nb
-        intermediate_bodies[j].edges = Int64[]
-    end
-    intermediate_vm = VortexModel(vm.g,vortices=[vm.vortices...],bodies=intermediate_bodies,U∞=vm.U∞)
+    # intermediate_bodies = deepcopy(vm.bodies)
+    # Nb = length(vm.bodies)
+    # for j=1:Nb
+    #     intermediate_bodies[j].edges = Int64[]
+    # end
+    # intermediate_vm = VortexModel(vm.g,vortices=[vm.vortices...],bodies=intermediate_bodies,U∞=vm.U∞)
     withfreestream = vm.U∞ == 0.0 ? false : true
     Nv = config.Nv
     Nx = 3*Nv
