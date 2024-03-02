@@ -9,28 +9,34 @@ struct Sensor
   Nsens :: Int64
 end
 
-mutable struct VortexPressure{Ny,withfreestream,DST} <: AbstractObservationOperator{Ny,true}
+mutable struct VortexPressure{Ny,withfreestream,DST,TVG,TX,TVF,TF,TP} <: AbstractObservationOperator{Ny,true}
     sens::Sensor
     config::VortexForecast
     # intermediate_vm :: VortexModel
     Δs::DST
+
+    """for pressure calculations"""
+    v̄::TVG
+    Xs::TX
+    v̄s::TVF
+    dp::TF
+    p̄::TP
 end
 
 function VortexPressure(sens::Sensor,config::VortexForecast)
     @unpack vvm= config
     vm = vvm[1]
-    # intermediate_bodies = deepcopy(vm.bodies)
-    # Nb = length(vm.bodies)
-    # for j=1:Nb
-    #     intermediate_bodies[j].edges = Int64[]
-    # end
-    # intermediate_vm = VortexModel(vm.g,vortices=[vm.vortices...],bodies=intermediate_bodies,U∞=vm.U∞)
     withfreestream = vm.U∞ == 0.0 ? false : true
     Nv = config.Nv
     Nx = 3*Nv
     Ny = length(sens.x)
     Δs = dlengthmid(vm.bodies[1].points)
-    return VortexPressure{Ny,withfreestream,typeof(Δs)}(sens,config,Δs)
+    v̄ = Edges(Primal,vm._ψ)
+    Xs = VectorData(collect(vm.bodies))
+    v̄s = VectorData(Xs)
+    dp = ScalarData(Xs)
+    p̄ = Nodes(Primal,vm._ψ)
+    return VortexPressure{Ny,withfreestream,typeof(Δs),typeof(v̄),typeof(Xs),typeof(v̄s),typeof(dp),typeof(p̄)}(sens,config,Δs,v̄,Xs,v̄s,dp,p̄)
 end
 
 
@@ -81,20 +87,15 @@ function observations(x::AbstractVector,t,Δt,obs::VortexPressure,i::Int64)
     solnp1 = solve(vm1)
     γnp1 = solnp1.f./Δs
 
-    v̄ = Edges(Primal,soln.ψ)
-    Xs = VectorData(collect(vmn.bodies))
-    v̄s = VectorData(Xs)
-    velocity!(v̄,soln.ψ,vmn.ilsys)
-    surface_velocity!(v̄s,v̄,vmn.ilsys)
+    velocity!(obs.v̄,soln.ψ,vmn.ilsys)
+    surface_velocity!(obs.v̄s,obs.v̄,vmn.ilsys)
 
-    dp = ScalarData(Xs)
-    pressurejump!(dp,γn,γnp1,v̄s,Δt,vmn.ilsys)
-    p̄ = Nodes(Primal,soln.ψ)
-    pressure!(p̄,v̄,dp,vmn.ilsys)
-    p⁺, p⁻ = sided_pressures(p̄,dp,vmn.ilsys)
+    pressurejump!(obs.dp,γn,γnp1,obs.v̄s,Δt,vmn.ilsys)
+    pressure!(obs.p̄,obs.v̄,obs.dp,vmn.ilsys)
+    p⁺, p⁻ = sided_pressures(obs.p̄,obs.dp,vmn.ilsys)
 
-    dp_sens = surface_interpolation(dp,pfb,sens)
+    dp_sens = surface_interpolation(obs.dp,pfb,sens)
 
-    return dp_sens, p̄, p⁺, p⁻
+    return dp_sens, obs.p̄, p⁺, p⁻
 end
 

@@ -38,8 +38,7 @@ function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{withfreestream,N
     @unpack points = pfb
     
     states_to_vortices!(vm,x,Δt)
-    vm.bodies[1].Γ = -sum(vm.vortices.Γ[1:end-2])
-    subtractcirculation!(vm.bodies, [vm.vortices.Γ[end-1]])
+    vm.bodies[1].Γ = -sum(vm.vortices.Γ[1:end-1])
     advect_vortices!(vm,Δt)
     vLEnew, vTEnew = createsheddedvortices(points,vm.vortices[end-1:end])
     pushvortices!(vm,vLEnew,vTEnew)
