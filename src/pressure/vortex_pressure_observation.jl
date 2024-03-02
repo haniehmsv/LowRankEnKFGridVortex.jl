@@ -9,16 +9,16 @@ struct Sensor
   Nsens :: Int64
 end
 
-mutable struct VortexPressure{Ny,withfreestream,DST,TV,TX,TF,TP} <: AbstractObservationOperator{Ny,true}
+mutable struct VortexPressure{Ny,withfreestream,DST,TVG,TX,TVF,TF,TP} <: AbstractObservationOperator{Ny,true}
     sens::Sensor
     config::VortexForecast
     # intermediate_vm :: VortexModel
     Δs::DST
 
     """for pressure calculations"""
-    v̄::TV
+    v̄::TVG
     Xs::TX
-    v̄s::TV
+    v̄s::TVF
     dp::TF
     p̄::TP
 end
@@ -36,7 +36,7 @@ function VortexPressure(sens::Sensor,config::VortexForecast)
     v̄s = VectorData(Xs)
     dp = ScalarData(Xs)
     p̄ = Nodes(Primal,vm._ψ)
-    return VortexPressure{Ny,withfreestream,typeof(Δs),typeof(v̄),typeof(Xs),typeof(dp),typeof(p̄)}(sens,config,Δs,v̄,Xs,v̄s,dp,p̄)
+    return VortexPressure{Ny,withfreestream,typeof(Δs),typeof(v̄),typeof(Xs),typeof(v̄s),typeof(dp),typeof(p̄)}(sens,config,Δs,v̄,Xs,v̄s,dp,p̄)
 end
 
 
