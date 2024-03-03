@@ -1,6 +1,6 @@
 
 
-export forecast, VortexForecast, advect_vortices!, createsheddedvortices, construct_intermediate_model!
+export forecast, VortexForecast, advect_vortices!, createsheddedvortices
 
 #### FORECAST OPERATORS ####
 
@@ -38,7 +38,7 @@ function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{withfreestream,N
     @unpack points = pfb
     
     states_to_vortices!(vm,x,Δt)
-    vm.bodies[1].Γ = -sum(vm.vortices.Γ[1:end-2])
+    vm.bodies[1].Γ = -sum(vm.vortices.Γ[1:end-1])
     advect_vortices!(vm,Δt)
     vLEnew, vTEnew = createsheddedvortices(points,vm.vortices[end-1:end])
     pushvortices!(vm,vLEnew,vTEnew)
@@ -50,26 +50,21 @@ function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{withfreestream,N
     return xnew
 end
 
-"""construct_intermediate_model!(intermediate_vm::VortexModel{Nb,0},vm::VortexModel{Nb,Ne}) --> VortexModel{Nb,0}
-an intermediate vortex model with all fields the same as vm except that intermediate_vm has no regularized edge. This allows
-the solution of the system for the existing vortices which solves solve!(sol::ConstrainedIBPoissonSolution, 
-vm::VortexModel{Nb,0,ConstrainedIBPoisson{Nb,TU,TF}}) in the vortexmodel.jl file. 
-"""
-function construct_intermediate_model!(intermediate_vm::VortexModel{Nb,0},vm::VortexModel{Nb,Ne}) where {Nb,Ne}
-    intermediate_vm.bodies = deepcopy(vm.bodies)
-    intermediate_vm.vortices = deepcopy(vm.vortices)
-    intermediate_vm.U∞ = deepcopy(vm.U∞)
-    for i=1:Nb
-        intermediate_vm.bodies[i].edges = Int64[]
-    end
-end
-
-"""Advances the motion of vortices in one time step for the existing vortices in the domain and a body with Ne=1 regularized edge.
+"""Advances the motion of vortices in one time step for the existing vortices in the domain and a body with Ne=1 regularized edge. Also solves for the new vortex shedded at the TE.
 Used in the foreward model."""
 function advect_vortices!(vm::VortexModel{Nb,Ne},Δt) where {Nb,Ne}
     X = getvortexpositions(vm)
-    subtractcirculation!(vm.bodies, [vm.vortices.Γ[end-1]])
     Ẋ = vortexvelocities!(vm)
+    X .= X .+ Ẋ*Δt
+    setvortexpositions!(vm, X)
+end
+
+"""Advances the motion of vortices in one time step for the existing vortices in the domain.
+Used in the observation model."""
+function advect_vortices!(vm::VortexModel{Nb,Ne},sol::ConstrainedIBPoissonSolution,Δt) where {Nb,Ne}
+    X = getvortexpositions(vm)
+    Ẋ = deepcopy(X)
+    vortexvelocities!(Ẋ, vm, sol.ψ)
     X .= X .+ Ẋ*Δt
     setvortexpositions!(vm, X)
 end
