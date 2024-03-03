@@ -3,10 +3,10 @@ export observations, VortexPressure, Sensor, calculate_impulse
 
 #### OBSERVATION OPERATORS ####
 
-struct Sensor
-  x :: Vector{Float64}
-  y :: Vector{Float64}
-  Nsens :: Int64
+struct Sensor{T}
+    x :: Vector{T}
+    y :: Vector{T}
+    Nsens :: Int64
 end
 
 mutable struct VortexPressure{Ny,withfreestream,DST,TVG,TX,TVF,TF,TP} <: AbstractObservationOperator{Ny,true}
