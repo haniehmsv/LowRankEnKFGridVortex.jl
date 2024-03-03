@@ -1,5 +1,6 @@
 module LowRankEnKFGridVortex
 
+using ForwardDiff
 using GridPotentialFlow
 using RigidBodyTools
 using LinearAlgebra
@@ -10,6 +11,7 @@ using NamedColors
 using Distributions
 using Combinatorics
 using UnPack
+const FD = ForwardDiff
 
 
 include("ensemble.jl")
