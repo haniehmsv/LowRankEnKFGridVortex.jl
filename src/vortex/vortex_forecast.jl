@@ -72,8 +72,8 @@ end
 # vortices released at one-third of the way from the edge to the last released vortex from that edge
 function createsheddedvortices(plate::Plate,oldvortices)
 
-    vLE = Vortex(2/3*plate.x[1]+1/3*oldvortices[end-1].x,2/3*plate.y[1]+1/3*oldvortices[end-1].y,0.0)
-    vTE = Vortex(2/3*plate.x[end]+1/3*oldvortices[end].x,2/3*plate.y[end]+1/3*oldvortices[end].y,0.0)
+    vLE = Vortex(2/3*plate.x[1]+1/3*FD.value(oldvortices[end-1].x),2/3*plate.y[1]+1/3*FD.value(oldvortices[end-1].y),0.0)
+    vTE = Vortex(2/3*plate.x[end]+1/3*FD.value(oldvortices[end].x),2/3*plate.y[end]+1/3*FD.value(oldvortices[end].y),0.0)
 
     return vLE, vTE
 end
