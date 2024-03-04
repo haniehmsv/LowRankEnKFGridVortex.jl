@@ -54,7 +54,7 @@ function observations(x::AbstractVector,t,Δt,obs::VortexPressure,i::Int64)
     soln = solve(vmn)
     vmn.vortices.Γ[end-1:end] = soln.δΓ_vec
     subtractcirculation!(vmn.bodies, soln.δΓ_vec)
-    soln = solve(vmn)
+    #soln = solve(vmn)
     γn = soln.f./Δs
 
     #solution at the next time step n+1
@@ -65,7 +65,7 @@ function observations(x::AbstractVector,t,Δt,obs::VortexPressure,i::Int64)
     solnp1 = solve(vm1)
     vm1.vortices.Γ[end-1:end] = solnp1.δΓ_vec
     subtractcirculation!(vm1.bodies, solnp1.δΓ_vec)
-    solnp1 = solve(vm1)
+    #solnp1 = solve(vm1)
     γnp1 = solnp1.f./Δs
 
     velocity!(obs.v̄,soln.ψ,vmn.ilsys)
