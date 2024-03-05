@@ -52,7 +52,12 @@ function observations(x::AbstractVector,t,Δt,obs::VortexPressure,i::Int64)
     states_to_vortices!(vvm[i],x) #i-th ensemble member
     vvm[i].bodies[1].Γ = -sum(vvm[i].vortices.Γ[1:end-2])
     vmn = deepcopy(vvm[i])
-    vmn.vortices.Γ[end-1] = x[end]*Δt
+    if !isempty(FD.partials(vmn.vortices.Γ[end-1]))
+        T = get_tag(vmn.vortices.Γ[end-1])
+        vmn.vortices.Γ[end-1] = FD.Dual{T}(FD.value(x[end])*Δt,FD.partials.(vmn.vortices.Γ[end-1])...)
+    else
+        vmn.vortices.Γ[end-1] = x[end]*Δt
+    end
     subtractcirculation!(vmn.bodies, [vmn.vortices.Γ[end-1]])
     soln = solve(vmn)
     vmn.vortices.Γ[end] = soln.δΓ_vec[1]
@@ -64,7 +69,7 @@ function observations(x::AbstractVector,t,Δt,obs::VortexPressure,i::Int64)
     advect_vortices!(vm1,soln,Δt)
     vLEnew, vTEnew = createsheddedvortices(points,vm1.vortices[end-1:end])
     pushvortices!(vm1,vLEnew,vTEnew)
-    vm1.vortices.Γ[end-1] = x[end]*Δt
+    vm1.vortices.Γ[end-1] = FD.value(x[end])*Δt
     subtractcirculation!(vmn.bodies, [vmn.vortices.Γ[end-1]])
     solnp1 = solve(vm1)
     vm1.vortices.Γ[end] = solnp1.δΓ_vec[1]
