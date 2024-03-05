@@ -31,11 +31,11 @@ function VortexPressure(sens::Sensor,config::VortexForecast)
     Nx = 3*Nv
     Ny = length(sens.x)
     Δs = dlengthmid(vm.bodies[1].points)
-    v̄ = Edges(Primal,vm._ψ)
+    v̄ = Edges(Primal,vm._ψ,dtype=Real)
     Xs = VectorData(collect(vm.bodies))
-    v̄s = VectorData(Xs)
-    dp = ScalarData(Xs)
-    p̄ = Nodes(Primal,vm._ψ)
+    v̄s = VectorData(Xs,dtype=Real)
+    dp = ScalarData(Xs,dtype=Real)
+    p̄ = Nodes(Primal,vm._ψ,dtype=Real)
     return VortexPressure{Ny,withfreestream,typeof(Δs),typeof(v̄),typeof(Xs),typeof(v̄s),typeof(dp),typeof(p̄)}(sens,config,Δs,v̄,Xs,v̄s,dp,p̄)
 end
 
