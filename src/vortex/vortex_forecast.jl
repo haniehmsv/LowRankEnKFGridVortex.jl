@@ -28,7 +28,6 @@ function VortexForecast(vvm::Vector{VortexModel{Nb,Ne,TS,TU,TE,TF,TX,ILS}}) wher
 end
 
 
-
 function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{withfreestream,Nb,Ne},i::Int64) where {withfreestream,Nb,Ne}
     @unpack vvm = fdata
     vm = vvm[i] #i-th ensemble member
