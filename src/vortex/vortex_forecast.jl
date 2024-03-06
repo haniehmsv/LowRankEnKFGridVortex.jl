@@ -20,7 +20,7 @@ end
 
 Allocate the structure for forecasting of vortex dynamics
 """
-function VortexForecast(vvm::Vector{VortexModel{Nb,Ne,TS,TU,TE,TF,TX,ILS}}) where {Nb,Ne,TS,TU,TE,TF,TX,ILS}
+function VortexForecast(vvm::Vector{<:VortexModel{Nb,Ne}}) where {Nb,Ne}
     withfreestream = vvm[1].U∞ == 0.0 ? false : true
     Nv = length(vvm[1].vortices)
     Nx = 3*Nv
