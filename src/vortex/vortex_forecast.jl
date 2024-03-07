@@ -39,7 +39,7 @@ function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{withfreestream,N
     states_to_vortices!(vm,x,Δt)
     vm.bodies[1].Γ = -sum(vm.vortices.Γ[1:end-1])
     advect_vortices!(vm,Δt)
-    vLEnew, vTEnew = createsheddedvortices(points,vm.vortices[end-1:end])
+    vLEnew, vTEnew = createsheddedvortices(points,vm.vortices[end-1:end],DT=Real)
     pushvortices!(vm,vLEnew,vTEnew)
     xnew = similar(x[1:end])
     # New vortices released from the two edges augment the state vector by 3*Ne

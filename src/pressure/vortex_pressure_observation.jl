@@ -67,7 +67,7 @@ function observations(x::AbstractVector,t,Δt,obs::VortexPressure,i::Int64)
     #solution at the next time step n+1
     vm1 = deepcopy(vmn)
     advect_vortices!(vm1,soln,Δt)
-    vLEnew, vTEnew = createsheddedvortices(points,vm1.vortices[end-1:end])
+    vLEnew, vTEnew = createsheddedvortices(points,vm1.vortices[end-1:end],DT=Real)
     pushvortices!(vm1,vLEnew,vTEnew)
     vm1.vortices.Γ[end-1] = FD.value(x[end])*Δt
     subtractcirculation!(vmn.bodies, [vmn.vortices.Γ[end-1]])
