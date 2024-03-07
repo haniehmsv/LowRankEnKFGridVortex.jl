@@ -45,7 +45,7 @@ function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{withfreestream,N
     xnew = similar(x[1:end])
     # New vortices released from the two edges augment the state vector by 3*Ne
     append!(xnew,zeros(6))
-    vortices_to_states!(xnew,vm,x,Δt)
+    vortices_to_states!(xnew,vm,x)
     fdata.Nv = length(vm.vortices)
     return xnew
 end
