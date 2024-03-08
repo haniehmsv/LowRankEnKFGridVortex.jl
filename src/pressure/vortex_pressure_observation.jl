@@ -52,19 +52,19 @@ function observations(x::AbstractVector,t,Δt,obs::VortexPressure,i::Int64)
     vvm[i].bodies[1].Γ = -sum(vvm[i].vortices.Γ[1:end-2])
     vmn = deepcopy(vvm[i])
     soln = solve(vmn)
-    vmn.vortices.Γ[end-1:end] = soln.δΓ_vec
-    subtractcirculation!(vmn.bodies, soln.δΓ_vec)
     γn = soln.f./Δs
+    setvortexstrengths!(vmn, soln.δΓ_vec, length(vmn.vortices)-1:length(vmn.vortices))
+    subtractcirculation!(vmn.bodies, soln.δΓ_vec)
 
     #solution at the next time step n+1
     vm1 = deepcopy(vmn)
     advect_vortices!(vm1,soln,Δt)
-    vLEnew, vTEnew = createsheddedvortices(points,vm1.vortices[end-1:end])
+    vLEnew, vTEnew = createsheddedvortices(points,vm1.vortices)
     pushvortices!(vm1,vLEnew,vTEnew)
     solnp1 = solve(vm1)
-    vm1.vortices.Γ[end-1:end] = solnp1.δΓ_vec
-    subtractcirculation!(vm1.bodies, solnp1.δΓ_vec)
     γnp1 = solnp1.f./Δs
+    setvortexstrengths!(vm1, solnp1.δΓ_vec, length(vm1.vortices)-1:length(vm1.vortices))
+    subtractcirculation!(vm1.bodies, solnp1.δΓ_vec)
 
     velocity!(obs.v̄,soln.ψ,vmn.ilsys)
     surface_velocity!(obs.v̄s,obs.v̄,vmn.ilsys)
@@ -73,9 +73,9 @@ function observations(x::AbstractVector,t,Δt,obs::VortexPressure,i::Int64)
     # pressure!(obs.p̄,obs.v̄,obs.dp,vmn.ilsys)
     # p⁺, p⁻ = sided_pressures(obs.p̄,obs.dp,vmn.ilsys)
 
-    dp_sens = surface_interpolation(obs.dp,pfb,sens)
+    #dp_sens = surface_interpolation(obs.dp,pfb,sens)
 
-    return dp_sens
+    return obs.dp   #dp_sens
 end
 
 """impulse"""
