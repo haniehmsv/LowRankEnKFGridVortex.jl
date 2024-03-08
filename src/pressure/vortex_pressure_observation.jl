@@ -70,7 +70,7 @@ function observations(x::AbstractVector,t,Δt,obs::VortexPressure,i::Int64)
     surface_velocity!(obs.v̄s,obs.v̄,vmn.ilsys)
 
     # pressurejump!(obs.dp,γn,γnp1,obs.v̄s,Δt,vmn.ilsys)
-    pressurejump!(obs.dp,soln.f,vm1,solnp1.f,v̄s,Δt,Δs,vmn.ilsys)  #another approach for computing dp
+    pressurejump!(obs.dp,soln.f,vm1,solnp1.f,obs.v̄s,Δt,Δs,vmn.ilsys)  #another approach for computing dp
     # pressure!(obs.p̄,obs.v̄,obs.dp,vmn.ilsys)
     # p⁺, p⁻ = sided_pressures(obs.p̄,obs.dp,vmn.ilsys)
 
