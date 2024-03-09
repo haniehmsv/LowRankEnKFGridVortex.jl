@@ -52,7 +52,7 @@ function observations(x::AbstractVector,t,Δt,obs::VortexPressure,i::Int64)
     vvm[i].bodies[1].Γ = -sum(vvm[i].vortices.Γ[1:end-2])
     vmn = deepcopy(vvm[i])
     soln = solve(vmn)
-    γn = soln.f./Δs
+    γn = soln.f./cellsize(vmn.g)#Δs
     setvortexstrengths!(vmn, soln.δΓ_vec, length(vmn.vortices)-1:length(vmn.vortices))
     subtractcirculation!(vmn.bodies, soln.δΓ_vec)
 
@@ -62,7 +62,7 @@ function observations(x::AbstractVector,t,Δt,obs::VortexPressure,i::Int64)
     vLEnew, vTEnew = createsheddedvortices(points,vm1.vortices)
     pushvortices!(vm1,vLEnew,vTEnew)
     solnp1 = solve(vm1)
-    γnp1 = solnp1.f./Δs
+    γnp1 = solnp1.f./cellsize(vmn.g)#Δs
     setvortexstrengths!(vm1, solnp1.δΓ_vec, length(vm1.vortices)-1:length(vm1.vortices))
     subtractcirculation!(vm1.bodies, solnp1.δΓ_vec)
 
