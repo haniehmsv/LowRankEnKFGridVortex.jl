@@ -1,5 +1,6 @@
 module LowRankEnKFGridVortex
 
+using CartesianGrids
 using ForwardDiff
 using GridPotentialFlow
 using RigidBodyTools
