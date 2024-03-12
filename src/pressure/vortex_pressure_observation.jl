@@ -79,7 +79,7 @@ function observations(x::AbstractVector,t,Δt,obs::VortexPressure,i::Int64)
     γnp1 .= ScalarData(solnp1.f.data./Δs)
 
     velocity!(obs.v̄,soln.ψ,vmn.ilsys)
-    surface_velocity!(obs.v̄s,obs.v̄,vmn.ilsys)
+    GridPotentialFlow.surface_velocity!(obs.v̄s,obs.v̄,vmn.ilsys)
 
     pressurejump!(obs.dp,γn,γnp1,obs.v̄s,Δt,vmn.ilsys)
     # pressure!(obs.p̄,obs.v̄,obs.dp,vmn.ilsys)
