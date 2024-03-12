@@ -69,13 +69,13 @@ function observations(x::AbstractVector,t,Δt,obs::VortexPressure,i::Int64)
     vm1 = deepcopy(vmn)
     solve!(soln, vmn)
     advect_vortices!(vm1,soln,Δt)
-    vLEnew, vTEnew = createsheddedvortices(points,vm1.vortices,DT=Real)
-    pushvortices!(vm1,vLEnew,vTEnew)
-    vm1.vortices.Γ[end-1] = FD.value(x[end])*Δt
-    subtractcirculation!(vmn.bodies, [vmn.vortices.Γ[end-1]])
+    # vLEnew, vTEnew = createsheddedvortices(points,vm1.vortices,DT=Real)
+    # pushvortices!(vm1,vLEnew,vTEnew)
+    # vm1.vortices.Γ[end-1] = FD.value(x[end])*Δt
+    # subtractcirculation!(vmn.bodies, [vmn.vortices.Γ[end-1]])
     solnp1 = solve(vm1)
-    vm1.vortices.Γ[end] = solnp1.δΓ_vec[1]
-    subtractcirculation!(vm1.bodies, solnp1.δΓ_vec)
+    # vm1.vortices.Γ[end] = solnp1.δΓ_vec[1]
+    # subtractcirculation!(vm1.bodies, solnp1.δΓ_vec)
     γnp1 = similar(solnp1.f)
     γnp1 .= ScalarData(solnp1.f.data./Δs)
 
