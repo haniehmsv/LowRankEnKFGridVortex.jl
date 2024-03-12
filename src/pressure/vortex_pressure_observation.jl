@@ -89,11 +89,11 @@ function observations(x::AbstractVector,t,Δt,obs::VortexPressure,i::Int64)
     surface_velocity!(obs.v̄s,obs.v̄,vmn.ilsys)
 
     pressurejump!(obs.dp,γn,γnp1,obs.v̄s,Δt,vmn.ilsys)
-    pressure!(obs.p̄,obs.v̄,obs.dp,vmn.ilsys)
-    p⁺, p⁻ = sided_pressures(obs.p̄,obs.dp,vmn.ilsys)
+    # pressure!(obs.p̄,obs.v̄,obs.dp,vmn.ilsys)
+    # p⁺, p⁻ = sided_pressures(obs.p̄,obs.dp,vmn.ilsys)
 
     dp_sens = surface_interpolation(obs.dp,pfb,sens)
 
-    return dp_sens, obs.p̄, p⁺, p⁻
+    return dp_sens
 end
 
