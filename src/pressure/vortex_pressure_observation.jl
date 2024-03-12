@@ -62,7 +62,8 @@ function observations(x::AbstractVector,t,Δt,obs::VortexPressure,i::Int64)
     soln = solve(vmn)
     vmn.vortices.Γ[end] = soln.δΓ_vec[1]
     subtractcirculation!(vmn.bodies, soln.δΓ_vec)
-    γn = soln.f./Δs
+    γn = similar(soln.f)
+    γn .= ScalarData(soln.f.data./Δs)
 
     #solution at the next time step n+1
     vm1 = deepcopy(vmn)
@@ -74,7 +75,8 @@ function observations(x::AbstractVector,t,Δt,obs::VortexPressure,i::Int64)
     solnp1 = solve(vm1)
     vm1.vortices.Γ[end] = solnp1.δΓ_vec[1]
     subtractcirculation!(vm1.bodies, solnp1.δΓ_vec)
-    γnp1 = solnp1.f./Δs
+    γnp1 = similar(solnp1.f)
+    γnp1 .= ScalarData(solnp1.f.data./Δs)
 
     velocity!(obs.v̄,soln.ψ,vmn.ilsys)
     surface_velocity!(obs.v̄s,obs.v̄,vmn.ilsys)
