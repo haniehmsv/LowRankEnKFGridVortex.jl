@@ -56,7 +56,7 @@ function observations(x::AbstractVector,t,Δt,obs::VortexPressure,i::Int64)
         T = get_tag(vmn.vortices.Γ[end-1])
         vmn.vortices.Γ[end-1] = FD.Dual{T}(FD.value(x[end])*Δt,FD.partials.(vmn.vortices.Γ[end-1])...)
     else
-        vmn.vortices.Γ[end-1] = x[end]*Δt
+        vmn.vortices.Γ[end-1] = FD.value(x[end])*Δt
     end
     subtractcirculation!(vmn.bodies, [vmn.vortices.Γ[end-1]])
     soln = solve(vmn)
