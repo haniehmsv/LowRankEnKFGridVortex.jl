@@ -68,7 +68,7 @@ function observations(x::AbstractVector,t,Δt,obs::VortexPressure,i::Int64)
     subtractcirculation!(vm1.bodies, solnp1.δΓ_vec)
 
     velocity!(obs.v̄,soln.ψ,vmn.ilsys)
-    surface_velocity!(obs.v̄s,obs.v̄,vmn.ilsys)
+    GridPotentialFlow.surface_velocity!(obs.v̄s,obs.v̄,vmn.ilsys)
     dp2 = deepcopy(obs.dp)
     obs.dp, dp2 = pressurejump!(obs.dp,γn,γnp1,obs.v̄s,Δt,vmn.ilsys)
     # pressurejump!(obs.dp,soln.f,vm1,solnp1.f,obs.v̄s,Δt,Δs,vmn.ilsys)  #another approach for computing dp
