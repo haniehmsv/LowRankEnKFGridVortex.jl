@@ -58,6 +58,7 @@ function observations(x::AbstractVector,t,Δt,obs::VortexPressure,i::Int64)
 
     #solution at the next time step n+1
     vm1 = deepcopy(vmn)
+    solve!(soln, vmn)
     advect_vortices!(vm1,soln,Δt)
     vLEnew, vTEnew = createsheddedvortices(points,vm1.vortices)
     pushvortices!(vm1,vLEnew,vTEnew)
