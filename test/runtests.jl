@@ -1,6 +1,7 @@
 using LowRankEnKFGridVortex
 using Test
 
-@testset "LowRankEnKFGridVortex.jl" begin
-    # Write your tests here.
+const GROUP = get(ENV, "GROUP", "All")
+if GROUP == "All" || GROUP == "ForwardDiff"
+    include("forwarddiff.jl")
 end
