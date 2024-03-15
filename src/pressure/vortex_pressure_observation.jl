@@ -76,7 +76,7 @@ function observations(x::AbstractVector,t,Δt,obs::VortexPressure{Ny,true,Nb,Ne,
     # pressure!(obs.p̄,obs.v̄,obs.dp,vmn.ilsys)
     # p⁺, p⁻ = sided_pressures(obs.p̄,obs.dp,vmn.ilsys)
 
-    #dp_sens = surface_interpolation(obs.dp,pfb,sens)
+    dp_sens = surface_interpolation(obs.dp,pfb,sens)
 
     return obs.dp, dp2   #dp_sens
 end
@@ -110,7 +110,7 @@ function observations(x::AbstractVector,t,Δt,obs::VortexPressure{Ny,true,Nb,Ne,
     # pressure!(obs.p̄,obs.v̄,obs.dp,vmn.ilsys)
     # p⁺, p⁻ = sided_pressures(obs.p̄,obs.dp,vmn.ilsys)
 
-    #dp_sens = surface_interpolation(obs.dp,pfb,sens)
+    dp_sens = surface_interpolation(obs.dp,pfb,sens)
 
     return obs.dp, dp2   #dp_sens
 end
