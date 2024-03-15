@@ -41,7 +41,7 @@ end
 
 
 
-function observations(x::AbstractVector,t,Δt,obs::VortexPressure{Ny,true,Nb,Ne,UnsteadyRegularizedIBPoisson{Nb,Ne}},i::Int64) where {Ny,Nb,Ne}
+function observations(x::AbstractVector,t,Δt,obs::VortexPressure{Ny,true,Nb,Ne,<:UnsteadyRegularizedIBPoisson{Nb,Ne}},i::Int64) where {Ny,Nb,Ne}
     @unpack sens, config, Δs = obs
     @unpack vvm = config
     @unpack bodies = vvm[i] #i-th ensemble member
@@ -81,7 +81,7 @@ function observations(x::AbstractVector,t,Δt,obs::VortexPressure{Ny,true,Nb,Ne,
     return obs.dp, dp2   #dp_sens
 end
 
-function observations(x::AbstractVector,t,Δt,obs::VortexPressure{Ny,true,Nb,Ne,ConstrainedIBPoisson{Nb}},i::Int64) where {Ny,Nb,Ne}
+function observations(x::AbstractVector,t,Δt,obs::VortexPressure{Ny,true,Nb,Ne,<:ConstrainedIBPoisson{Nb}},i::Int64) where {Ny,Nb,Ne}
     @unpack sens, config, Δs = obs
     @unpack vvm = config
     @unpack bodies = vvm[i] #i-th ensemble member
