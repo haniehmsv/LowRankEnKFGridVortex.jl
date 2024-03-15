@@ -35,7 +35,7 @@ function VortexPressure(sens::Sensor,config::VortexForecast{withfreestream,Nb,Ne
     v̄s = VectorData(Xs)
     dp = ScalarData(Xs)
     p̄ = Nodes(Primal,vm._ψ)
-    return VortexPressure{Ny,withfreestream,TS,typeof(Δs),typeof(v̄),typeof(Xs),typeof(v̄s),typeof(dp),typeof(p̄)}(sens,config,Δs,v̄,Xs,v̄s,dp,p̄)
+    return VortexPressure{Ny,withfreestream,Nb,Ne,TS,typeof(Δs),typeof(v̄),typeof(Xs),typeof(v̄s),typeof(dp),typeof(p̄)}(sens,config,Δs,v̄,Xs,v̄s,dp,p̄)
 end
 
 
