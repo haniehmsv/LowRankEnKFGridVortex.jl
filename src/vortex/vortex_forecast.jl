@@ -28,7 +28,7 @@ function VortexForecast(vvm::Vector{<:VortexModel{Nb,Ne,TS}}) where {Nb,Ne,TS}
 end
 
 """System with regularized edges. Enforce circulation constraints."""
-function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{true,Nb,Ne,<:UnsteadyRegularizedIBPoisson{Nb,Ne}},i::Int64) where {Nb,Ne}
+function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{true,Nb,Ne,UnsteadyRegularizedIBPoisson{Nb,Ne,TU,TF}},i::Int64) where {Nb,Ne,TU,TF}
     @unpack vvm = fdata
     vm = vvm[i] #i-th ensemble member
     @unpack bodies = vm
