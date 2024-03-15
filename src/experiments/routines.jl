@@ -1,13 +1,23 @@
+# TODO: setup_sensors(body::Ellipse,Nsens) now works only for cicles, modify it for ellipses
 export setup_sensors, surface_interpolation
   
-  """Setting up sensors only for body::Plate for now"""
-  function setup_sensors(pfb::PotentialFlowBody,Nsens)
-    @unpack points, U, Ω = pfb
+  """Setting up sensors for body::Plate"""
+function setup_sensors(body::Polygon,Nsens)
+    
+    xsens = range(body.x[1],body.x[end],length=Nsens)
+    ysens = range(body.y[1],body.y[end],length=Nsens)
   
-    xsens = range(points.x[1],points.x[end],length=Nsens)
-    ysens = range(points.y[1],points.y[end],length=Nsens)
-  
-    return Sensor(vcat(xsens),vcat(ysens),Nsens)
+    return Sensor(collect(xsens),collect(ysens),Nsens)
+end
+
+"""Setting up sensors for body::Circle"""
+function setup_sensors(body::Ellipse,Nsens)
+  ds = collect(range(0,2π,Nsens+1))
+  pop!(ds)
+  xsens = body.cent[1] .+ body.a .* cos.(ds)
+  ysens = body.cent[2] .+ body.b .* sin.(ds)
+
+  return Sensor(xsens,ysens,Nsens)
 end
 
 function surface_interpolation(p::ScalarData,pfb::PotentialFlowBody,sens::Sensor)
