@@ -1,4 +1,4 @@
-
+import GridPotentialFlow: AbstractPotentialFlowSystem
 
 export forecast, VortexForecast, advect_vortices!, createsheddedvortices, construct_intermediate_model!
 
