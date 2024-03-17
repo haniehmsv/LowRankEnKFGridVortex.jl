@@ -29,7 +29,7 @@ end
 
 """Interpolate scalar data p defined on the body points to the sensor locations"""
 function surface_interpolation(p::ScalarData,pfb::PotentialFlowBody,sens::Sensor)
-    return _surface_interpolation(p,pfb.points,sen)
+    return _surface_interpolation(p,pfb.points,sens)
 end
 
 function _surface_interpolation(p::ScalarData,body::Polygon,sens::Sensor)
