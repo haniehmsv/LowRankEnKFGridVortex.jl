@@ -58,7 +58,7 @@ function generate_data_twin_experiment(x0, t0, tf, Δt, fdata::AbstractForecastO
 
     additive_inflation!(x,Σx)
 
-    y .= observations(x,t0,odata)
+    y .= observations(x,t0,Δt,odata)
     additive_inflation!(y,Σϵ)
 
     yt[:,1] .= deepcopy(y)
@@ -73,7 +73,7 @@ function generate_data_twin_experiment(x0, t0, tf, Δt, fdata::AbstractForecastO
 
         tt[i+1] = t0+i*Δt
 
-        y .= observations(x,tt[i+1],odata)
+        y .= observations(x,tt[i+1],Δt,odata)
 
         additive_inflation!(y,Σϵ)
 

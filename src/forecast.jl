@@ -17,7 +17,9 @@ struct IdentityForecastOperator{Nx} <: AbstractForecastOperator end
 
 forecast(x,t,Δt,::IdentityForecastOperator) = x
 
-
+function forecast(x::AbstractVector,t,Δt,fdata::AbstractForecastOperator)
+  return forecast(x,t,Δt,fdata,1)
+end
 """
     forecast!(X::BasicEnsembleMatrix,t,Δt,fdata::AbstractForecastOperator)
 

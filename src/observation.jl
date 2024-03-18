@@ -51,7 +51,9 @@ Compute the observation function `h` for state `x` at time `t`.
 The function `h` should take as inputs a vector of measurement points (`sens`), a vector of vortices,
 and the configuration data `config`.
 """
-function observations(x::AbstractVector,t,obs::AbstractObservationOperator) end
+function observations(x::AbstractVector,t,Δt,obs::AbstractObservationOperator)
+    return observations(x,t,Δt,obs,1)
+end
 
 """
     observations!(Y::EnsembleMatrix,X::EnsembleMatrix,t::Float64,obs::AbstractObservationOperator)
@@ -66,13 +68,6 @@ function observations!(Y::EnsembleMatrix{Ny,Ne},X::EnsembleMatrix{Ne},t,Δt,obs:
   end
   return Y
 end
-
-function observations!(Y::EnsembleMatrix{Ny,Ne},X::EnsembleMatrix{Ne},t,obs::AbstractObservationOperator{Ny}) where {Ny,Ne}
-    for j in 1:Ne
-        Y(j) .= observations(X(j),t,obs)
-    end
-    return Y
-  end
 
 """
     jacob!(J,x::AbstractVector,t::Float64,obs::AbstractObservationOperator)
