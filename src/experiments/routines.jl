@@ -33,6 +33,30 @@ function surface_interpolation(p::ScalarData,pfb::PotentialFlowBody,sens::Sensor
 end
 
 function _surface_interpolation(p::ScalarData,body::Polygon,sens::Sensor)
+  rs, rsens = _arrange_sensors_along_a_line(body,sens)
+  itp = linear_interpolation(rs, p.data)
+  psens = itp(rsens)
+  return psens
+end
+
+function _surface_interpolation(p::ScalarData,body::Ellipse,sens::Sensor;ε=0.1)
+  # Xp = hcat(body.x, body.y)
+  # itp = RBFInterpolator(Xp, p.data, ε)
+  rs, rsens = _arrange_sensors_along_a_line(body,sens)
+  itp = linear_interpolation(rs, p.data)
+  psens = itp(rsens)
+  return psens
+end
+
+function _arrange_sensors_along_a_line(body::Ellipse,sens::Sensor)
+  dθs = 2π/length(body.x)
+  rs = [body.a*i*dθs for i=0:(length(body.x)-1)]
+  dθsens = 2π/sens.Nsens
+  rsens = [body.a*i*dθsens for i=0:(sens.Nsens-1)]
+  return rs, rsens
+end
+
+function _arrange_sensors_along_a_line(body::Polygon,sens::Sensor)
   xsens = deepcopy(sens.x)
   ysens = deepcopy(sens.y)
   xs, ys = deepcopy(RigidBodyTools.collect(body))
@@ -41,24 +65,9 @@ function _surface_interpolation(p::ScalarData,body::Polygon,sens::Sensor)
   @. xs -= x_cent
   @. ys -= y_cent
   rs = (xs .> 0.0) .* sqrt.(xs.^2 .+ ys.^2) .+ (xs .<= 0.0) .* -sqrt.(xs.^2 .+ ys.^2)
-  itp = linear_interpolation(rs, p.data)
 
   @. xsens -= x_cent
   @. ysens -= y_cent
   rsens = (xsens .> 0.0) .* sqrt.(xsens.^2 .+ ysens.^2) .+ (xsens .<= 0.0) .* -sqrt.(xsens.^2 .+ ysens.^2)
-  psens = itp(rsens)
-  return psens
-end
-
-function _surface_interpolation(p::ScalarData,body::Ellipse,sens::Sensor;ε=0.1)
-  # Xp = hcat(body.x, body.y)
-  # itp = RBFInterpolator(Xp, p.data, ε)
-  dθs = 2π/length(p)
-  rs = [body.a*i*dθs for i=0:(length(p)-1)]
-  itp = linear_interpolation(rs, p.data)
-
-  dθsens = 2π/sens.Nsens
-  rsens = [body.a*i*dθsens for i=0:(sens.Nsens-1)]
-  psens = itp(rsens)
-  return psens
+  return rs, rsens
 end
