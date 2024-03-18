@@ -24,6 +24,7 @@ include("vortex/vortex.jl")
 include("vortex/vortex_forecast.jl")
 
 include("pressure/vortex_pressure_observation.jl")
+include("pressure/jacobian.jl")
 
 include("DA/types.jl")
 include("DA/generate_twin_experiment.jl")
