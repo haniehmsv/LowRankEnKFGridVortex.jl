@@ -5,4 +5,4 @@ function jacob!(H,x::AbstractVector,t,Δt,obs::AbstractObservationOperator{Ny},i
     H .= dhdx(x,t,Δt,obs,i)
 end
 
-function jacob!(H,x::AbstractVector,t,Δt,obs::AbstractObservationOperator{Ny}) where {Ny} = nothing
+jacob!(H,x::AbstractVector,t,Δt,obs::AbstractObservationOperator{Ny}) where {Ny} = nothing
