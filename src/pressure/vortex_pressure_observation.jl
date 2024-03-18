@@ -101,14 +101,16 @@ function observations(x::AbstractVector,t,Δt,obs::VortexPressure{Ny,true,Nb,Ne,
     vvm[i].bodies[1].Γ = -sum(vvm[i].vortices.Γ)
     vmn = deepcopy(vvm[i])
     soln = solve(vmn)
-    γn = soln.f./Δs
+    γn = similar(soln.f)
+    γn .= ScalarData(soln.f.data./Δs)
 
     #solution at the next time step n+1
     vm1 = deepcopy(vmn)
     solve!(soln, vmn)
     advect_vortices!(vm1,soln,Δt)
     solnp1 = solve(vm1)
-    γnp1 = solnp1.f./Δs
+    γnp1 = similar(solnp1.f)
+    γnp1 .= ScalarData(solnp1.f.data./Δs)
 
     velocity!(obs.v̄,soln.ψ,vmn.ilsys)
     GridPotentialFlow.surface_velocity!(obs.v̄s,obs.v̄,vmn.ilsys)
