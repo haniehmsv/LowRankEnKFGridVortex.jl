@@ -51,8 +51,14 @@ function _surface_interpolation(p::ScalarData,body::Polygon,sens::Sensor)
 end
 
 function _surface_interpolation(p::ScalarData,body::Ellipse,sens::Sensor;ε=0.1)
-  Xp = hcat(body.x, body.y)
-  itp = RBFInterpolator(Xp, p.data, ε)
-  psens = itp.(sens.x,sens.y)
+  # Xp = hcat(body.x, body.y)
+  # itp = RBFInterpolator(Xp, p.data, ε)
+  dθs = 2π/length(p)
+  rs = [body.a*i*dθs for i=0:(length(p)-1)]
+  itp = linear_interpolation(rs, p.data)
+
+  dθsens = 2π/sens.Nsens
+  rsens = [body.a*i*dθsens for i=0:(sens.Nsens-1)]
+  psens = itp(rsens)
   return psens
 end
