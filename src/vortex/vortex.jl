@@ -1,4 +1,4 @@
-export vortices_to_states!, states_to_vortices!
+export vortices_to_states!, states_to_vortices!, create_covariance
 
 
 function vortices_to_states!(x::AbstractVector,vm::VortexModel{Nb,Ne},xold::AbstractVector) where {Nb,Ne}
@@ -25,4 +25,12 @@ function states_to_vortices!(vm::VortexModel{Nb,Ne},x::AbstractVector) where {Nb
     vm.vortices.x .= x[1:3:end-Ne]
     vm.vortices.y .= x[2:3:end-Ne]
     vm.vortices.Γ .= x[3:3:end-Ne]
+end
+
+"""
+create_covariance(var::Real, N::Int) -> Matrix with dimensions (N*N)
+creates a covariance matrix with variance var and dimention N
+"""
+function create_covariance(var::Real, N::Int)
+  return Diagonal(var^2*ones(N))
 end
