@@ -235,8 +235,8 @@ function enkf(algo::AbstractSeqFilter, X::BasicEnsembleMatrix{Ne}, Σx, Σϵ, ts
 	   # Generate samples from the observation noise
      ϵ = create_ensemble(Ne,zeros(Ny),Σϵ)
      
-     Jac = allocate_jacobian(Nx,Ny,algo)
-     Cx = allocate_state_gramian(Nx,algo)
+    #  Jac = allocate_jacobian(Nx,Ny,algo)
+    #  Cx = allocate_state_gramian(Nx,algo)
      enkf_kalman_update!(algo,X,Y,Σx,Σϵ,Cx_history,Cy_history,rxhist,ryhist,tnext,ϵ,ystar,Cx,Cy,Gyy,Jac)
 
 	   # Filter state
@@ -291,8 +291,8 @@ function _lrenkf_kalman_update!(algo::LREnKFParameters{isadaptive},X::BasicEnsem
   yerr = norm(ystar-mean(Y),Σϵ)
   #yerr = norm(ystar-Y+ϵ,Σϵ)
 
-  gramians!(Cx,Cy,Jac,odata, Σϵ, X, Σx, t)
-  #gramians_approx!(Cx,Cy, Jac, odata, Σϵ, X, Σx, t)
+  gramians!(Cx,Cy,Jac,odata, Σϵ, X, Σx, t, Δt)
+  #gramians_approx!(Cx,Cy, Jac, odata, Σϵ, X, Σx, t, Δt)
   
   Nx = state_length(X)
   V, Λx, _ = svd(Symmetric(Cx))  # Λx = Λ^2
@@ -345,7 +345,7 @@ end
 
 Compute the state and observation gramians Cx and Cy.
 """
-function gramians!(Cx,Cy,H,obs::AbstractObservationOperator{Ny},Σϵ,X::EnsembleMatrix{Ne},Σx,t) where {Ny,Ne}
+function gramians!(Cx,Cy,H,obs::AbstractObservationOperator{Ny},Σϵ,X::EnsembleMatrix{Ne},Σx,t,Δt) where {Ny,Ne}
 
     fill!(Cx,0.0)
     fill!(Cy,0.0)
@@ -358,7 +358,7 @@ function gramians!(Cx,Cy,H,obs::AbstractObservationOperator{Ny},Σϵ,X::Ensemble
 
     for j in 1:Ne
 
-        jacob!(H,X(j),t,obs)
+        jacob!(H,X(j),t,Δt,obs,j)
 
         H .= invDϵ*H*Dx
 
@@ -376,7 +376,7 @@ end
 Compute the state and observation gramians Cx and Cy using an approximation
 in which we evaluate the jacobian at the mean of the ensemble `X`.
 """
-function gramians_approx!(Cx,Cy,H,obs::AbstractObservationOperator{Ny},Σϵ,X::EnsembleMatrix{Ne},Σx,t) where {Ny,Ne}
+function gramians_approx!(Cx,Cy,H,obs::AbstractObservationOperator{Ny},Σϵ,X::EnsembleMatrix{Ne},Σx,t,Δt) where {Ny,Ne}
 
     fill!(Cx,0.0)
     fill!(Cy,0.0)
@@ -384,7 +384,7 @@ function gramians_approx!(Cx,Cy,H,obs::AbstractObservationOperator{Ny},Σϵ,X::E
     invDϵ = inv(sqrt(Σϵ))
     Dx = sqrt(Σx)
 
-    jacob!(H,mean(X),t,obs)
+    jacob!(H,mean(X),t,Δt,obs)
 
     H .= invDϵ*H*Dx
 
