@@ -22,7 +22,7 @@ function states_to_vortices!(vm::VortexModel{Nb,Ne},x::AbstractVector,Δt) where
 end
 
 function states_to_vortices!(vm::VortexModel{Nb,Ne},x::AbstractVector) where {Nb,Ne}
-    vm.vortices.x .= x[1:3:end-1]
-    vm.vortices.y .= x[2:3:end-1]
-    vm.vortices.Γ .= x[3:3:end-1]
+    vm.vortices.x .= x[1:3:end-Ne]
+    vm.vortices.y .= x[2:3:end-Ne]
+    vm.vortices.Γ .= x[3:3:end-Ne]
 end
