@@ -70,7 +70,7 @@ function observations(x::AbstractVector,t,Δt,obs::VortexPressure{Ny,true,Nb,Ne,
 
     velocity!(obs.v̄,soln.ψ,vmn.ilsys)
     GridPotentialFlow.surface_velocity!(obs.v̄s,obs.v̄,vmn.ilsys)
-    dp2 = deepcopy(obs.dp)
+    # dp2 = deepcopy(obs.dp)
     pressurejump!(obs.dp,γn,γnp1,obs.v̄s,Δt,vmn.ilsys)
     # pressurejump!(obs.dp,soln.f,vm1,solnp1.f,obs.v̄s,Δt,Δs,vmn.ilsys)  #another approach for computing dp
     # pressure!(obs.p̄,obs.v̄,obs.dp,vmn.ilsys)
@@ -104,7 +104,7 @@ function observations(x::AbstractVector,t,Δt,obs::VortexPressure{Ny,true,Nb,Ne,
 
     velocity!(obs.v̄,soln.ψ,vmn.ilsys)
     GridPotentialFlow.surface_velocity!(obs.v̄s,obs.v̄,vmn.ilsys)
-    dp2 = deepcopy(obs.dp)
+    # dp2 = deepcopy(obs.dp)
     pressurejump!(obs.dp,γn,γnp1,obs.v̄s,Δt,vmn.ilsys)
     # pressurejump!(obs.dp,soln.f,vm1,solnp1.f,obs.v̄s,Δt,Δs,vmn.ilsys)  #another approach for computing dp
     pressure!(obs.p̄,obs.v̄,obs.dp,vmn.ilsys)
