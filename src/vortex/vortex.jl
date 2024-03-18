@@ -8,6 +8,12 @@ function vortices_to_states!(x::AbstractVector,vm::VortexModel{Nb,Ne},xold::Abst
     x[end] = xold[end]
 end
 
+function vortices_to_states!(x::AbstractVector,vm::VortexModel{Nb,Ne}) where {Nb,Ne}
+    @inbounds for (i, vortex) in enumerate(vm.vortices)
+        x[3i-2:3i] .= (vortex.x, vortex.y, vortex.Γ)
+    end
+end
+
 function states_to_vortices!(vm::VortexModel{Nb,Ne},x::AbstractVector,Δt) where {Nb,Ne}
     vm.vortices.x .= x[1:3:end-1]
     vm.vortices.y .= x[2:3:end-1]
