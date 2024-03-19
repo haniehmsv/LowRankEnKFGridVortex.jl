@@ -257,7 +257,7 @@ enkf_kalman_update!(algo::LREnKFParameters,args...) = _lrenkf_kalman_update!(alg
 
 ### Stochastic ENKF ####
 
-function _senkf_kalman_update!(algo,X::BasicEnsembleMatrix{Ne},Y::BasicEnsembleMatrix{Ny,Ne},Σx,Σϵ,Cx_history,Cy_history,rxhist,ryhist,t,ϵ,ystar,Cx,Cy,Gyy,Jac) where {Ny,Ne}
+function _senkf_kalman_update!(algo,X::BasicEnsembleMatrix{Ne},Y::BasicEnsembleMatrix{Ne},Σx,Σϵ,Cx_history,Cy_history,rxhist,ryhist,t,ϵ,ystar,Cx,Cy,Gyy,Jac) where {Ne}
 
   yerr = norm(ystar-mean(Y),Σϵ)
 
@@ -284,7 +284,7 @@ end
 
 ### Low-rank ENKF ####
 
-function _lrenkf_kalman_update!(algo::LREnKFParameters{isadaptive},X::BasicEnsembleMatrix{Ne},Y::BasicEnsembleMatrix{Ny,Ne},Σx,Σϵ,Cx_history,Cy_history,rxhist,ryhist,t,ϵ,ystar,Cx,Cy,Gyy,Jac) where {isadaptive,Ny,Ne}
+function _lrenkf_kalman_update!(algo::LREnKFParameters{isadaptive},X::BasicEnsembleMatrix{Ne},Y::BasicEnsembleMatrix{Ne},Σx,Σϵ,Cx_history,Cy_history,rxhist,ryhist,t,ϵ,ystar,Cx,Cy,Gyy,Jac) where {isadaptive,Ne}
 
   @unpack rxdefault, rydefault, ratio, odata = algo
 
@@ -295,6 +295,7 @@ function _lrenkf_kalman_update!(algo::LREnKFParameters{isadaptive},X::BasicEnsem
   #gramians_approx!(Cx,Cy, Jac, odata, Σϵ, X, Σx, t, Δt)
   
   Nx = state_length(X)
+  Ny = measurement_length(odata)
   V, Λx, _ = svd(Symmetric(Cx))  # Λx = Λ^2
   U, Λy, _ = svd(Symmetric(Cy))  # Λy = Λ^2
 
