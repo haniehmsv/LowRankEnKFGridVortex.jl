@@ -286,12 +286,12 @@ end
 
 function _lrenkf_kalman_update!(algo::LREnKFParameters{isadaptive},X::BasicEnsembleMatrix{Ne},Y::BasicEnsembleMatrix{Ne},Σx,Σϵ,Cx_history,Cy_history,rxhist,ryhist,t,ϵ,ystar,Cx,Cy,Gyy,Jac) where {isadaptive,Ne}
 
-  @unpack rxdefault, rydefault, ratio, odata, Δtobs = algo
+  @unpack rxdefault, rydefault, ratio, odata, Δtdyn = algo
 
   yerr = norm(ystar-mean(Y),Σϵ)
   #yerr = norm(ystar-Y+ϵ,Σϵ)
 
-  gramians!(Cx,Cy,Jac,odata, Σϵ, X, Σx, t, Δtobs)
+  gramians!(Cx,Cy,Jac,odata, Σϵ, X, Σx, t, Δtdyn)
   #gramians_approx!(Cx,Cy, Jac, odata, Σϵ, X, Σx, t, Δtobs)
   
   Nx = state_length(X)
