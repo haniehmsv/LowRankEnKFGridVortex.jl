@@ -44,16 +44,16 @@ function log_uniform(x::Vector,bounds::Vector{<:Tuple})
     return logp
 end
 
-"""
-    observations(x::AbstractVector,t::Float64,obs::AbstractObservationOperator) -> X
+# """
+#     observations(x::AbstractVector,t::Float64,obs::AbstractObservationOperator) -> X
 
-Compute the observation function `h` for state `x` at time `t`.
-The function `h` should take as inputs a vector of measurement points (`sens`), a vector of vortices,
-and the configuration data `config`.
-"""
-function observations(x::AbstractVector,t,Δt,obs::AbstractObservationOperator)
-    return observations(x,t,Δt,obs)
-end
+# Compute the observation function `h` for state `x` at time `t`.
+# The function `h` should take as inputs a vector of measurement points (`sens`), a vector of vortices,
+# and the configuration data `config`.
+# """
+# function observations(x::AbstractVector,t,Δt,obs::AbstractObservationOperator)
+#     return observations(x,t,Δt,obs)
+# end
 
 """
     observations!(Y::EnsembleMatrix,X::EnsembleMatrix,t::Float64,obs::AbstractObservationOperator)
