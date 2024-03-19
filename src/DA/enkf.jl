@@ -359,7 +359,7 @@ function gramians!(Cx,Cy,H,obs::AbstractObservationOperator{Ny},Σϵ,X::Ensemble
 
     for j in 1:Ne
 
-        jacob!(H,X(j),t,Δt,obs,j)
+        jacob!(H,X(j),t,Δt,obs)
 
         H .= invDϵ*H*Dx
 
