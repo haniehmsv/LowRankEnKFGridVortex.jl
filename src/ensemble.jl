@@ -114,7 +114,7 @@ end
 mean(X::EnsembleMatrix) = _ensemble_mean(X.X,X.burnin)
 std(X::EnsembleMatrix) = _ensemble_std(X.X,X.burnin)
 cov(X::EnsembleMatrix) = _ensemble_cov(X.X,X.burnin)
-cov(X::EnsembleMatrix{Ne},Y::EnsembleMatrix{Ny,Ne}) where {Ny,Ne} = _ensemble_cov(X.X,Y.X,max(X.burnin,Y.burnin))
+cov(X::EnsembleMatrix{Ne},Y::EnsembleMatrix{Ne}) where {Ne} = _ensemble_cov(X.X,Y.X,max(X.burnin,Y.burnin))
 
 """
     ensemble_perturb(X::BasicEnsembleMatrix) -> BasicEnsembleMatrix
@@ -217,7 +217,7 @@ function Base.show(io::IO,m::MIME"text/plain",X::YXEnsembleMatrix{Ny,Ne}) where 
     show(io,m,X.X)
 end
 
-Base.vcat(Y::BasicEnsembleMatrix{Ny,Ne},X::BasicEnsembleMatrix{Ne}) where {Ny,Ne} =
+Base.vcat(Y::BasicEnsembleMatrix{Ne},X::BasicEnsembleMatrix{Ne}) where {Ne} =
     YXEnsembleMatrix(Y.X,X.X)
 
 Base.hcat(X::BasicEnsembleMatrix...) =
