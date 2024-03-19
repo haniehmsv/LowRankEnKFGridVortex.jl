@@ -52,7 +52,7 @@ The function `h` should take as inputs a vector of measurement points (`sens`), 
 and the configuration data `config`.
 """
 function observations(x::AbstractVector,t,Δt,obs::AbstractObservationOperator)
-    return observations(x,t,Δt,obs,1)
+    return observations(x,t,Δt,obs)
 end
 
 """
@@ -64,7 +64,7 @@ and the configuration data `config`.
 """
 function observations!(Y::EnsembleMatrix{Ny,Ne},X::EnsembleMatrix{Ne},t,Δt,obs::AbstractObservationOperator{Ny}) where {Ny,Ne}
   for j in 1:Ne
-      Y(j) .= observations(X(j),t,Δt,obs,j)
+      Y(j) .= observations(X(j),t,Δt,obs)
   end
   return Y
 end

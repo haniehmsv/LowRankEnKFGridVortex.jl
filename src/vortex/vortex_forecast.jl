@@ -8,7 +8,7 @@ export forecast, VortexForecast, advect_vortices!, createsheddedvortices
 mutable struct VortexForecast{withfreestream,Nb,Ne,TS<:Union{AbstractPotentialFlowSystem,Laplacian}} <: AbstractForecastOperator
 
     "vortex model from GridPotentialFlow.jl"
-    vvm :: Vector{<:VortexModel{Nb,Ne,TS}}
+    vm :: VortexModel{Nb,Ne,TS}
 
     "Number of vortices"
     Nv :: Int64
@@ -20,18 +20,17 @@ end
 
 Allocate the structure for forecasting of vortex dynamics
 """
-function VortexForecast(vvm::Vector{<:VortexModel{Nb,Ne,TS}}) where {Nb,Ne,TS}
-    withfreestream = vvm[1].U∞ == 0.0 ? false : true
-    Nv = length(vvm[1].vortices)
+function VortexForecast(vm::VortexModel{Nb,Ne,TS}) where {Nb,Ne,TS}
+    withfreestream = vm.U∞ == 0.0 ? false : true
+    Nv = length(vm.vortices)
     Nx = 3*Nv
-    VortexForecast{withfreestream,Nb,Ne,TS}(vvm,Nv)
+    VortexForecast{withfreestream,Nb,Ne,TS}(vm,Nv)
 end
 
 
 """System with regularized edges. Enforce circulation constraints."""
-function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{true,Nb,Ne,<:UnsteadyRegularizedIBPoisson{Nb,Ne}},i::Int64) where {Nb,Ne}
-    @unpack vvm = fdata
-    vm = vvm[i] #i-th ensemble member
+function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{true,Nb,Ne,<:UnsteadyRegularizedIBPoisson{Nb,Ne}}) where {Nb,Ne}
+    @unpack vm = fdata
     @unpack bodies = vm
     #for 1 body for now
     pfb = bodies[1]
@@ -51,9 +50,8 @@ function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{true,Nb,Ne,<:Uns
 end
 
 """System without regularized edges. Enforce circulation constraints."""
-function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{true,Nb,Ne,<:ConstrainedIBPoisson{Nb}},i::Int64) where {Nb,Ne}
-    @unpack vvm = fdata
-    vm = vvm[i] #i-th ensemble member
+function forecast(x::AbstractVector,t,Δt,fdata::VortexForecast{true,Nb,Ne,<:ConstrainedIBPoisson{Nb}}) where {Nb,Ne}
+    @unpack vm = fdata
     @unpack bodies = vm
     #for 1 body for now
     pfb = bodies[1]

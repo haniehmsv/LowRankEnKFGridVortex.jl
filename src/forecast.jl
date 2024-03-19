@@ -18,7 +18,7 @@ struct IdentityForecastOperator{Nx} <: AbstractForecastOperator end
 forecast(x,t,Δt,::IdentityForecastOperator) = x
 
 function forecast(x::AbstractVector,t,Δt,fdata::AbstractForecastOperator)
-  return forecast(x,t,Δt,fdata,1)
+  return forecast(x,t,Δt,fdata)
 end
 """
     forecast!(X::BasicEnsembleMatrix,t,Δt,fdata::AbstractForecastOperator)
@@ -28,7 +28,7 @@ defined for `fdata`.
 """
 function forecast!(X::BasicEnsembleMatrix{Ne},t,Δt,fdata::AbstractForecastOperator) where {Ne}
   for j in 1:Ne
-    X(j) .= forecast(X(j),t,Δt,fdata,j)
+    X(j) .= forecast(X(j),t,Δt,fdata)
   end
   return X
 end
@@ -36,7 +36,7 @@ end
 function forecast(X::BasicEnsembleMatrix{Ne},t,Δt,fdata::AbstractForecastOperator) where {Ne}
     Xnew = []
     for j in 1:Ne
-      new_state = forecast(X(j),t,Δt,fdata,j)
+      new_state = forecast(X(j),t,Δt,fdata)
       push!(Xnew, new_state)
     end
 

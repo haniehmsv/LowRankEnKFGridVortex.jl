@@ -23,8 +23,7 @@ mutable struct VortexPressure{Ny,withfreestream,Nb,Ne,TS<:Union{AbstractPotentia
 end
 
 function VortexPressure(sens::Sensor,config::VortexForecast{withfreestream,Nb,Ne,TS}) where {withfreestream,Nb,Ne,TS}
-    @unpack vvm= config
-    vm = vvm[1]
+    @unpack vm = config
     Nv = config.Nv
     Nx = 3*Nv
     Ny = length(sens.x)
@@ -38,18 +37,18 @@ function VortexPressure(sens::Sensor,config::VortexForecast{withfreestream,Nb,Ne
 end
 
 
-function observations(x::AbstractVector,t,Δt,obs::VortexPressure{Ny,true,Nb,Ne,<:UnsteadyRegularizedIBPoisson{Nb,Ne}},i::Int64) where {Ny,Nb,Ne}
+function observations(x::AbstractVector,t,Δt,obs::VortexPressure{Ny,true,Nb,Ne,<:UnsteadyRegularizedIBPoisson{Nb,Ne}}) where {Ny,Nb,Ne}
     @unpack sens, config, Δs = obs
-    @unpack vvm = config
-    @unpack bodies = vvm[i] #i-th ensemble member
+    @unpack vm = config
+    @unpack bodies = vm
     #for 1 body for now
     pfb = bodies[1]
     @unpack points = pfb
 
     #Solution at the current time step
-    states_to_vortices!(vvm[i],x) #i-th ensemble member
-    vvm[i].bodies[1].Γ = -sum(vvm[i].vortices.Γ[1:end-2])
-    vmn = deepcopy(vvm[i])
+    states_to_vortices!(vm,x) #i-th ensemble member
+    vm.bodies[1].Γ = -sum(vm.vortices.Γ[1:end-2])
+    vmn = deepcopy(vm)
     if !isempty(FD.partials(vmn.vortices.Γ[end-1]))
         T = get_tag(vmn.vortices.Γ[end-1])
         vmn.vortices.Γ[end-1] = FD.Dual{T}(FD.value(x[end])*Δt,FD.partials.(vmn.vortices.Γ[end-1])...)
@@ -89,17 +88,17 @@ function observations(x::AbstractVector,t,Δt,obs::VortexPressure{Ny,true,Nb,Ne,
     return dp_sens
 end
 
-function observations(x::AbstractVector,t,Δt,obs::VortexPressure{Ny,true,Nb,Ne,<:ConstrainedIBPoisson{Nb}},i::Int64) where {Ny,Nb,Ne}
+function observations(x::AbstractVector,t,Δt,obs::VortexPressure{Ny,true,Nb,Ne,<:ConstrainedIBPoisson{Nb}}) where {Ny,Nb,Ne}
     @unpack sens, config, Δs = obs
-    @unpack vvm = config
-    @unpack bodies = vvm[i] #i-th ensemble member
+    @unpack vm = config
+    @unpack bodies = vm
     #for 1 body for now
     pfb = bodies[1]
     @unpack points = pfb
 
-    states_to_vortices!(vvm[i],x) #i-th ensemble member
-    vvm[i].bodies[1].Γ = -sum(vvm[i].vortices.Γ)
-    vmn = deepcopy(vvm[i])
+    states_to_vortices!(vm,x) #i-th ensemble member
+    vm.bodies[1].Γ = -sum(vm.vortices.Γ)
+    vmn = deepcopy(vm)
     soln = solve(vmn)
     γn = similar(soln.f)
     γn .= ScalarData(soln.f.data./Δs)
