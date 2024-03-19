@@ -113,7 +113,7 @@ the sensors, then this only interpolates over time.
 function create_truth_function(data::SyntheticData,odata::AbstractObservationOperator{Ny,true}) where {Ny}
   @unpack sens, tt, Δt, yt = data
   trange = tt[1]:Δt:tt[end]
-  _, rsens = _arrange_sensors_along_a_line(odata.config.vvm[1].bodies[1].points,odata.sens)
+  _, rsens = _arrange_sensors_along_a_line(odata.config.vm.bodies[1].points,odata.sens)
   y_itp = CubicSplineInterpolation((LinRange(rsens[1], rsens[end], sens.Nsens),trange), yt, extrapolation_bc =  Line())
   ytrue(t) = y_itp(rsens, t)
   return ytrue
