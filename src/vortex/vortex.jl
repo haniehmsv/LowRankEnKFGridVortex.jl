@@ -34,3 +34,22 @@ creates a covariance matrix with variance var and dimention N
 function create_covariance(var::Real, N::Int)
   return Diagonal(var^2*ones(N))
 end
+
+"""
+    state_covariance(varx, vary, varΓ, config::VortexForecast)
+
+Create a state covariance matrix with variances `varx`, `vary` and `varΓ`
+for the x, y, and strength entries for every vortex.
+"""
+function state_covariance(varx, vary, varΓ, config::VortexForecast)
+  @unpack Nv = config
+
+  Σx_diag = zeros(Float64,state_length(config))
+  for j = 1:Nv
+    Σx_diag[3i-2] = varx
+    Σx_diag[3i-1] = vary
+    Σx_diag[3i] = varΓ
+  end
+
+  return Diagonal(Σx_diag)
+end
