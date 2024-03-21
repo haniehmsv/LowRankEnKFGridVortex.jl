@@ -78,7 +78,7 @@ function observations(x::AbstractVector,t,Δt,obs::VortexPressure{Ny,true,Nb,Ne,
 
     # dp_sens = surface_interpolation(obs.dp,pfb,sens)
 
-    return dp_sens
+    return obs.dp, dp2
 end
 
 function observations(x::AbstractVector,t,Δt,obs::VortexPressure{Ny,true,Nb,Ne,<:ConstrainedIBPoisson{Nb}},i::Int64) where {Ny,Nb,Ne}
