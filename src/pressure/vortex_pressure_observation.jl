@@ -70,13 +70,13 @@ function observations(x::AbstractVector,t,Δt,obs::VortexPressure{Ny,true,Nb,Ne,
 
     velocity!(obs.v̄,soln.ψ,vmn.ilsys)
     GridPotentialFlow.surface_velocity!(obs.v̄s,obs.v̄,vmn.ilsys)
-    # dp2 = deepcopy(obs.dp)
-    pressurejump!(obs.dp,γn,γnp1,obs.v̄s,Δt,vmn.ilsys)
+    dp2 = deepcopy(obs.dp)
+    obs.dp, dp2 = pressurejump!(obs.dp,γn,γnp1,obs.v̄s,Δt,vmn.ilsys)
     # pressurejump!(obs.dp,soln.f,vm1,solnp1.f,obs.v̄s,Δt,Δs,vmn.ilsys)  #another approach for computing dp
     # pressure!(obs.p̄,obs.v̄,obs.dp,vmn.ilsys)
     # p⁺, p⁻ = sided_pressures(obs.p̄,obs.dp,vmn.ilsys)
 
-    dp_sens = surface_interpolation(obs.dp,pfb,sens)
+    # dp_sens = surface_interpolation(obs.dp,pfb,sens)
 
     return dp_sens
 end
@@ -104,15 +104,15 @@ function observations(x::AbstractVector,t,Δt,obs::VortexPressure{Ny,true,Nb,Ne,
 
     velocity!(obs.v̄,soln.ψ,vmn.ilsys)
     GridPotentialFlow.surface_velocity!(obs.v̄s,obs.v̄,vmn.ilsys)
-    dp2 = deepcopy(obs.dp)
-    obs.dp,dp2 = pressurejump!(obs.dp,γn,γnp1,obs.v̄s,Δt,vmn.ilsys)
+    # dp2 = deepcopy(obs.dp)
+    pressurejump!(obs.dp,γn,γnp1,obs.v̄s,Δt,vmn.ilsys)
     # pressurejump!(obs.dp,soln.f,vm1,solnp1.f,obs.v̄s,Δt,Δs,vmn.ilsys)  #another approach for computing dp
-    # pressure!(obs.p̄,obs.v̄,obs.dp,vmn.ilsys)
+    pressure!(obs.p̄,obs.v̄,obs.dp,vmn.ilsys)
     # p⁺, p⁻ = sided_pressures(obs.p̄,obs.dp,vmn.ilsys)
 
     # dp_sens = surface_interpolation(obs.dp,pfb,sens)
 
-    return obs.dp,dp2
+    return dp_sens, obs.p̄
 end
 
 """impulse"""
