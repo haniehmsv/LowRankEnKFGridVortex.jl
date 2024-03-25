@@ -235,8 +235,8 @@ function enkf(algo::AbstractSeqFilter, X::BasicEnsembleMatrix{Ne}, Σx, Σϵ, ts
 	   # Generate samples from the observation noise
      ϵ = create_ensemble(Ne,zeros(Ny),Σϵ)
      
-     Jac = allocate_jacobian(Nx,Ny,algo)
-     Cx = allocate_state_gramian(Nx,algo)
+    #  Jac = allocate_jacobian(Nx,Ny,algo)
+    #  Cx = allocate_state_gramian(Nx,algo)
      enkf_kalman_update!(algo,X,Y,Σx,Σϵ,Cx_history,Cy_history,rxhist,ryhist,tnext,ϵ,ystar,Cx,Cy,Gyy,Jac)
 
 	   # Filter state
@@ -257,7 +257,7 @@ enkf_kalman_update!(algo::LREnKFParameters,args...) = _lrenkf_kalman_update!(alg
 
 ### Stochastic ENKF ####
 
-function _senkf_kalman_update!(algo,X::BasicEnsembleMatrix{Ne},Y::BasicEnsembleMatrix{Ny,Ne},Σx,Σϵ,Cx_history,Cy_history,rxhist,ryhist,t,ϵ,ystar,Cx,Cy,Gyy,Jac) where {Ny,Ne}
+function _senkf_kalman_update!(algo,X::BasicEnsembleMatrix{Ne},Y::BasicEnsembleMatrix{Ne},Σx,Σϵ,Cx_history,Cy_history,rxhist,ryhist,t,ϵ,ystar,Cx,Cy,Gyy,Jac) where {Ne}
 
   yerr = norm(ystar-mean(Y),Σϵ)
 
@@ -284,7 +284,7 @@ end
 
 ### Low-rank ENKF ####
 
-function _lrenkf_kalman_update!(algo::LREnKFParameters{isadaptive},X::BasicEnsembleMatrix{Ne},Y::BasicEnsembleMatrix{Ny,Ne},Σx,Σϵ,Cx_history,Cy_history,rxhist,ryhist,t,ϵ,ystar,Cx,Cy,Gyy,Jac) where {isadaptive,Ny,Ne}
+function _lrenkf_kalman_update!(algo::LREnKFParameters{isadaptive},X::BasicEnsembleMatrix{Ne},Y::BasicEnsembleMatrix{Ne},Σx,Σϵ,Cx_history,Cy_history,rxhist,ryhist,t,ϵ,ystar,Cx,Cy,Gyy,Jac) where {isadaptive,Ne}
 
   @unpack rxdefault, rydefault, ratio, odata = algo
 

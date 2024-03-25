@@ -12,7 +12,7 @@ abstract type AbstractObservationOperator{Ny,withsensors} end
 
 measurement_length(::AbstractObservationOperator{Ny}) where {Ny} = Ny
 state_length(X::EnsembleMatrix) = size(X,1)
-
+state_length(config::VortexForecast) = config.Nv*3
 
 """
     normal_loglikelihood(x,t,ystar,Σϵ,obs) -> Float64
@@ -60,14 +60,14 @@ Compute the observation function `h` for each of the states in `X` and place the
 The function `h` should take as inputs a Ny-dimensional vector of measurement points (`sens`), a vector of vortices,
 and the configuration data `config`.
 """
-function observations!(Y::EnsembleMatrix{Ny,Ne},X::EnsembleMatrix{Ne},t,Δt,obs::AbstractObservationOperator{Ny}) where {Ny,Ne}
+function observations!(Y::EnsembleMatrix{Ne},X::EnsembleMatrix{Ne},t,Δt,obs::AbstractObservationOperator{Ny}) where {Ny,Ne}
   for j in 1:Ne
-      Y(j) .= observations(X(j),t,Δt,obs,j)
+      Y(j) .= observations(X(j),t,Δt,obs)
   end
   return Y
 end
 
-function observations!(Y::EnsembleMatrix{Ny,Ne},X::EnsembleMatrix{Ne},t,obs::AbstractObservationOperator{Ny}) where {Ny,Ne}
+function observations!(Y::EnsembleMatrix{Ne},X::EnsembleMatrix{Ne},t,obs::AbstractObservationOperator{Ny}) where {Ny,Ne}
     for j in 1:Ne
         Y(j) .= observations(X(j),t,obs)
     end
