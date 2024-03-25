@@ -59,13 +59,13 @@ function observations(x::AbstractVector,t,Δt,obs::VortexPressure{Ny,true,Nb,Ne,
     #solution at the next time step n+1
     vm1 = deepcopy(vmn)
     solve!(soln, vmn)
-    advect_vortices!(vm1,soln,Δt)
+    # advect_vortices!(vm1,soln,Δt)
     vLEnew, vTEnew = createsheddedvortices(points,vm1.vortices)
     pushvortices!(vm1,vLEnew,vTEnew)
     solnp1 = solve(vm1)
     γnp1 = solnp1.f./Δs
-    setvortexstrengths!(vm1, solnp1.δΓ_vec, length(vm1.vortices)-1:length(vm1.vortices))
-    subtractcirculation!(vm1.bodies, solnp1.δΓ_vec)
+    # setvortexstrengths!(vm1, solnp1.δΓ_vec, length(vm1.vortices)-1:length(vm1.vortices))
+    # subtractcirculation!(vm1.bodies, solnp1.δΓ_vec)
 
     velocity!(obs.v̄,soln.ψ,vmn.ilsys)
     GridPotentialFlow.surface_velocity!(obs.v̄s,obs.v̄,vmn.ilsys)
