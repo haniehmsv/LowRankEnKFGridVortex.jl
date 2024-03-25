@@ -8,7 +8,7 @@ export forecast, VortexForecast, advect_vortices!, createsheddedvortices, constr
 mutable struct VortexForecast{withfreestream,Nb,Ne,TS<:Union{AbstractPotentialFlowSystem,Laplacian}} <: AbstractForecastOperator
 
     "vortex model from GridPotentialFlow.jl"
-    vvm :: VortexModel{Nb,Ne,TS}
+    vm :: VortexModel{Nb,Ne,TS}
 
     "Number of vortices"
     Nv :: Int64
