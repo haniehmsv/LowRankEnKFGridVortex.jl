@@ -29,23 +29,10 @@ end
 
 """Interpolate scalar data p defined on the body points to the sensor locations"""
 function surface_interpolation(p::ScalarData,pfb::PotentialFlowBody,sens::Sensor)
-    return _surface_interpolation(p,pfb.points,sens)
-end
-
-function _surface_interpolation(p::ScalarData,body::Polygon,sens::Sensor)
-  rs, rsens = _arrange_sensors_along_a_line(body,sens)
-  itp = linear_interpolation(rs, p.data)
-  psens = itp(rsens)
-  return psens
-end
-
-function _surface_interpolation(p::ScalarData,body::Ellipse,sens::Sensor;ε=0.1)
-  # Xp = hcat(body.x, body.y)
-  # itp = RBFInterpolator(Xp, p.data, ε)
-  rs, rsens = _arrange_sensors_along_a_line(body,sens)
-  itp = linear_interpolation(rs, p.data)
-  psens = itp(rsens)
-  return psens
+    rs, rsens = _arrange_sensors_along_a_line(pfb.points,sens)
+    itp = linear_interpolation(rs, p.data)
+    psens = itp(rsens)
+    return psens
 end
 
 function _arrange_sensors_along_a_line(body::Ellipse,sens::Sensor)
