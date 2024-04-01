@@ -12,7 +12,7 @@ abstract type AbstractObservationOperator{Ny,withsensors} end
 
 measurement_length(::AbstractObservationOperator{Ny}) where {Ny} = Ny
 state_length(X::EnsembleMatrix) = size(X,1)
-state_length(config::VortexForecast) = config.Nv*3
+state_length(config::AbstractForecastOperator) = config.Nv*3
 
 
 """
