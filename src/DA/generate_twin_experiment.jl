@@ -25,13 +25,13 @@ end
 
 
 """
-    generate_data_twin_experiment(x0,t0,tf,Δt,fdata::AbstractForecastOperator,odata::AbstractObservationOperator,Σx,Σϵ)
+    generate_data_twin_experiment(x0,t0,tf,Δt,fdata::AbstractForecastOperator,odata::AbstractObservationOperator,Σx_inflate,Σϵ)
 
 Starting with initial state `x0`, this routine advances the system with the forecast model
 and evaluates the observation data at each time step in the range t0:Δt:tf.
 It returns the data history as a `SyntheticData` structure.
 """
-function generate_data_twin_experiment(x0, t0, tf, Δt, fdata::AbstractForecastOperator, odata::AbstractObservationOperator{Ny}, Σx, Σϵ) where {Ny}
+function generate_data_twin_experiment(x0, t0, tf, Δt, fdata::AbstractForecastOperator, odata::AbstractObservationOperator{Ny}, Σx_inflate, Σϵ) where {Ny}
 
   @unpack sens = odata
     # 0.1 Generate initial state and inflate it
@@ -56,7 +56,7 @@ function generate_data_twin_experiment(x0, t0, tf, Δt, fdata::AbstractForecastO
     tt[1] = t0
     xt[:,1] .= x
 
-    additive_inflation!(x,Σx)
+    additive_inflation!(x,Σx_inflate)
 
     y .= observations(x,t0,Δt,odata)
     additive_inflation!(y,Σϵ)
@@ -67,7 +67,7 @@ function generate_data_twin_experiment(x0, t0, tf, Δt, fdata::AbstractForecastO
 
         x .= forecast(x,tt[i],Δt,fdata)
 
-        additive_inflation!(x,Σx)
+        additive_inflation!(x,Σx_inflate)
 
         xt[:,i+1] .= deepcopy(x)
 
