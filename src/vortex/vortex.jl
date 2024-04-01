@@ -41,7 +41,7 @@ end
 Create a state covariance matrix with variances `varx`, `vary` and `varΓ`
 for the x, y, and strength entries for every vortex.
 """
-function state_covariance(varx, vary, varΓ, config::VortexForecast)
+function state_covariance(varx, vary, varΓ, config::AbstractForecastOperator)
   @unpack Nv = config
 
   Σx_diag = zeros(Float64,state_length(config))
