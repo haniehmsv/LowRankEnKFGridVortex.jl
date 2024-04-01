@@ -166,7 +166,7 @@ Optional arguments:
 - `inflate::Bool = true`: True if additive/multiplicative inflation is desired
 - `β::Float64 = 1.0`: Multiplicative inflation parameter
 """
-function enkf(algo::AbstractSeqFilter, X::BasicEnsembleMatrix{Ne}, Σx, Σϵ, tspan::Tuple{S,S}; inflate::Bool = true, β = 1.0) where {Ne,S<:Real}
+function enkf(algo::AbstractSeqFilter, X::BasicEnsembleMatrix{Ne}, Σx_inflate, Σϵ, tspan::Tuple{S,S}; inflate::Bool = true, β = 1.0) where {Ne,S<:Real}
   @unpack fdata, odata, ytrue, Δtobs, Δtdyn = algo
 
   Ny = measurement_length(odata)
@@ -221,7 +221,7 @@ function enkf(algo::AbstractSeqFilter, X::BasicEnsembleMatrix{Ne}, Σx, Σϵ, ts
      ## These steps belong as a general analysis step ##
 
 	   # Perform state inflation
-     inflate && additive_inflation!(X,Σx)
+     inflate && additive_inflation!(X,Σx_inflate)
      inflate && multiplicative_inflation!(X,β)
 
 	   # Filter state
@@ -234,6 +234,9 @@ function enkf(algo::AbstractSeqFilter, X::BasicEnsembleMatrix{Ne}, Σx, Σϵ, ts
 
 	   # Generate samples from the observation noise
      ϵ = create_ensemble(Ne,zeros(Ny),Σϵ)
+
+     # Compute marginally the variance of the state ensemble
+     Σx = Diagonal(vec(std(X; dims = 2)).^2)
      
     #  Jac = allocate_jacobian(Nx,Ny,algo)
     #  Cx = allocate_state_gramian(Nx,algo)
